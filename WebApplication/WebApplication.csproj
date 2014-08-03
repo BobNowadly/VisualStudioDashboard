@@ -124,6 +124,11 @@
       <DependentUpon>T4MVC.tt</DependentUpon>
     </Compile>
     <Compile Include="Controllers\BurnupController.cs" />
+    <Compile Include="Controllers\CycleTimeController.cs" />
+    <Compile Include="CycleTimeController.generated.cs">
+      <DependentUpon>T4MVC.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Extensions\DataModelExtension.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -145,6 +150,7 @@
     <Content Include="Views\Burnup\Index.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="nvd3.license.md" />
+    <Content Include="Views\CycleTime\Index.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

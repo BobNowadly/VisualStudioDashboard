@@ -34,7 +34,7 @@ namespace Dash.Tests
 
             var history = new Historian(mockRepo.Object);
 
-            List<WorkItem> wi = history.GetCommittedAndClosedWorkItems();
+            List<WorkItem> wi = history.GetCommittedAndClosedWorkItems(@"BPS.Scrum\Dev -SEP Project");
 
             Assert.AreEqual(89, wi.First().Id);
             Assert.AreEqual("The title", wi.First().Title);
@@ -55,7 +55,7 @@ namespace Dash.Tests
 
             var history = new Historian(mockRepo.Object);
 
-            List<WorkItem> wi = history.GetCommittedAndClosedWorkItems();
+            List<WorkItem> wi = history.GetCommittedAndClosedWorkItems(@"BPS.Scrum\Dev -SEP Project");
 
             Assert.AreEqual("7/8/2014", wi.First().DateClosed.Value.ToShortDateString());
         }
@@ -72,7 +72,7 @@ namespace Dash.Tests
 
             var history = new Historian(mockRepo.Object);
 
-            List<WorkItem> wi = history.GetCommittedAndClosedWorkItems();
+            List<WorkItem> wi = history.GetCommittedAndClosedWorkItems(@"BPS.Scrum\Dev -SEP Project");
 
             Assert.IsFalse(wi.First().DateClosed.HasValue);
         }
@@ -89,7 +89,7 @@ namespace Dash.Tests
 
             var history = new Historian(mockRepo.Object);
 
-            List<WorkItem> wi = history.GetCommittedAndClosedWorkItems();
+            List<WorkItem> wi = history.GetCommittedAndClosedWorkItems(@"BPS.Scrum\Dev -SEP Project");
 
             Assert.AreEqual("7/6/2014", wi.First().DateCommittedTime.Value.ToShortDateString());
         }
@@ -106,7 +106,7 @@ namespace Dash.Tests
 
             var history = new Historian(mockRepo.Object);
 
-            List<WorkItem> wi = history.GetCommittedAndClosedWorkItems();
+            List<WorkItem> wi = history.GetCommittedAndClosedWorkItems(@"BPS.Scrum\Dev -SEP Project");
 
             Assert.IsFalse(wi.First().DateCommittedTime.HasValue);
         }

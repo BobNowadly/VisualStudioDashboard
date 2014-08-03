@@ -3,14 +3,15 @@
 @{
     ViewBag.Title = "title";
 }
-<h1>Burn Up Chart</h1>
+
+<h1>Average Cycle Time</h1>
 <div id="spinner"></div>
-<div id="chart1" class="chartDiv">
-    <svg style="height: 500px; width: 900px"></svg>
+<div id="chart" class="chartDiv">
+    <svg style="height: 450px; width: 900px"></svg>
 </div>
 
-@section Scripts {
-
+@section Scripts
+{
     <script type="text/javascript">
         var opts = {
             lines: 13, // The number of lines to draw
@@ -32,11 +33,11 @@
         };
         var target = document.getElementById('spinner');
         var spinner = new Spinner(opts).spin(target);
-        
+
         $(function () {
             $.ajax({
                 type: "GET",
-                url: "@Url.Action(MVC.Burnup.GetData())",
+                url: "@Url.Action(MVC.CycleTime.GetData())",
                 success: function (data) {
                     createChart(data);
                     spinner.stop();
@@ -44,45 +45,35 @@
             });
 
         });
-
-        function createChart (data) {
-            // Wrapping in nv.addGraph allows for '0 timeout render', stores rendered charts in nv.graphs, and may do more in the future... it's NOT required
-            var chart;
-
+        
+        function createChart(data) {
             nv.addGraph(function () {
-                chart = nv.models.lineChart()
-                    .options({
-                        margin: { left: 100, bottom: 100 },
-                        showXAxis: true,
-                        showYAxis: true,
-                        transitionDuration: 250
-                    });
+                var chart = nv.models.discreteBarChart()
+                        .staggerLabels(true)    //Too many bars and not enough room? Try staggering labels.
+                        .tooltips(false)        //Don't show tooltips
+                        .showValues(true)       //...instead, show the bar value right on top of each bar.
+                        .transitionDuration(350).options({
+                            margin: { left: 100, bottom: 100 },
+                            showXAxis: true,
+                            showYAxis: true
+                        })
+                    ;
 
-                // chart sub-models (ie. xAxis, yAxis, etc) when accessed directly, return themselves, not the parent chart, so need to chain separately
                 chart.xAxis
-                    .axisLabel("Date")
-                    .rotateLabels(-45)
-                    .tickFormat(function (d) {
-                        return d3.time.format('%b %d')(new Date(d));
-                    });
+                    .axisLabel("Effort (Story points)");
 
                 chart.yAxis
-                    .axisLabel('Effort (Story Points)');
+                    .axisLabel('Work Days');
 
-                d3.select('#chart1 svg')
+                d3.select('#chart svg')
                     .datum(data)
                     .call(chart);
 
-                //TODO: Figure out a good way to do this automatically
                 nv.utils.windowResize(chart.update);
-                //nv.utils.windowResize(function() { d3.select('#chart1 svg').call(chart) });
-
-                chart.dispatch.on('stateChange', function (e) { nv.log('New State:', JSON.stringify(e)); });
 
                 return chart;
             });
         }
 
     </script>
-    
 }

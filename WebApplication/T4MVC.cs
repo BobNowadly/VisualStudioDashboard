@@ -26,6 +26,7 @@ using T4MVC;
 public static partial class MVC
 {
     public static WebApplication.Controllers.BurnupController Burnup = new WebApplication.Controllers.T4MVC_BurnupController();
+    public static WebApplication.Controllers.CycleTimeController CycleTime = new WebApplication.Controllers.T4MVC_CycleTimeController();
     public static T4MVC.SharedController Shared = new T4MVC.SharedController();
 }
 

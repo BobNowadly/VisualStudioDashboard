@@ -22,7 +22,7 @@ namespace Dashboard.Console
                     new WorkItemRepository(new TfsConnection(ConfigurationManager.AppSettings["username"],
                         ConfigurationManager.AppSettings["password"], client)));
 
-                List<WorkItem> workItms = history.GetCommittedAndClosedWorkItems();
+                List<WorkItem> workItms = history.GetCommittedAndClosedWorkItems(@"BPS.Scrum\Dev -SEP Project");
                 using (var writer = new StreamWriter(@".\output" + DateTime.Now.ToString("yyyymmmmdd") + ".xls"))
                 {
                     var csvWriter = new CsvWriter(writer, new CsvConfiguration { Delimiter = "\t" });

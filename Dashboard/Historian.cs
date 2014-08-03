@@ -8,8 +8,9 @@ namespace Dashboard
 {
     public interface IHistorian
     {
-        List<WorkItem> GetCommittedAndClosedWorkItems();
+        List<WorkItem> GetCommittedAndClosedWorkItems(string area);
         BurnUp GetBurnUpDataSince(DateTime since, string area);
+        List<WorkItemEffortAverage> GetEffortCycleTimeAverage(string area);
     }
 
     public class Historian : IHistorian
@@ -21,12 +22,12 @@ namespace Dashboard
             this.repository = repository;
         }
 
-        public List<WorkItem> GetCommittedAndClosedWorkItems()
+        public List<WorkItem> GetCommittedAndClosedWorkItems(string area)
         {
             // Get Workitem ids
             // to do move the area to the constructor 
             int[] workitemids =
-                repository.GetInProcAndClosedWorkItems(@"BPS.Scrum\Dev -SEP Project")
+                repository.GetInProcAndClosedWorkItems(area)
                     .Result.Results.Select(s => s.SourceId)
                     .ToArray();
 
@@ -128,6 +129,62 @@ namespace Dashboard
 
             return list;
         }
+
+        public List<WorkItemEffortAverage> GetEffortCycleTimeAverage(string area)
+        {
+            var workItems = GetCommittedAndClosedWorkItems(area);
+
+            var data = (from w in workItems
+                where w.Effort.HasValue && w.DateCommittedTime.HasValue && w.DateClosed.HasValue
+                group w by new {w.Effort}
+                into g
+                select
+                    new WorkItemEffortAverage
+                    {
+                        Effort = g.Key.Effort.Value,
+                        AverageDays =
+                            g.Average(s => CountWorkDays(s.DateCommittedTime.Value, s.DateClosed.Value, new List<DateTime>()))
+                    }
+                );
+
+            return data.OrderBy(s => s.Effort).ToList();
+        }
+
+      
+        private int CountWorkDays(DateTime startDate, DateTime endDate, List<DateTime> excludedDates)
+        {
+            int dayCount = 0;
+            int inc = 1;
+            bool endDateIsInPast = startDate > endDate;
+            DateTime tmpDate = startDate.Date;
+            DateTime finiDate = endDate.Date;
+
+            if (endDateIsInPast)
+            {
+                // Swap dates around
+                tmpDate = endDate;
+                finiDate = startDate;
+
+                // Set increment value to -1, so it DayCount decrements rather 
+                // than increments
+                inc = -1;
+            }
+
+            while (tmpDate <= finiDate)
+            {
+                if (!excludedDates.Contains(tmpDate) && (tmpDate.DayOfWeek != DayOfWeek.Saturday && tmpDate.DayOfWeek != DayOfWeek.Sunday) )
+                {
+                    dayCount += inc;
+                }
+
+                // Move onto next day
+                tmpDate = tmpDate.AddDays(1);
+            }
+
+            return dayCount - 1;
+        }
+
+                                      
     }
 
     public class BurnUp
@@ -140,5 +197,11 @@ namespace Dashboard
     {
         public DateTime Date { get; set; }
         public int Count { get; set; }
+    }
+
+    public class WorkItemEffortAverage
+    {
+        public int Effort { get; set; }
+        public double AverageDays { get; set; }
     }
 }

@@ -2,7 +2,7 @@ namespace WebApplication.Models
 {
     public class PointViewModel
     {
-        public long x { get; set; }
-        public int y { get; set; }
+        public object x { get; set; }
+        public object y { get; set; }
     }
 }
