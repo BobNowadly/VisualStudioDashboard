@@ -54,7 +54,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Dashboard.csproj">
+    <ProjectReference Include="..\Dashboard\Dashboard.csproj">
       <Project>{38c314dd-95e6-4b0c-805e-7d942b9c2d01}</Project>
       <Name>Dashboard</Name>
     </ProjectReference>

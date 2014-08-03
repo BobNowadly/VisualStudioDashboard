@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard", "Dashboard.csproj", "{38C314DD-95E6-4B0C-805E-7D942B9C2D01}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Tests", "..\Dash.Tests\Dashboard.Tests.csproj", "{AD7CD0D0-EA91-4D46-9FD3-08761AF39E27}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Console", "Dashboard.Console\Dashboard.Console.csproj", "{3C6DA783-D03B-47A2-B494-CB313CDD2780}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard", "Dashboard\Dashboard.csproj", "{38C314DD-95E6-4B0C-805E-7D942B9C2D01}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Tests", "Dash.Tests\Dashboard.Tests.csproj", "{AD7CD0D0-EA91-4D46-9FD3-08761AF39E27}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +15,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3C6DA783-D03B-47A2-B494-CB313CDD2780}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C6DA783-D03B-47A2-B494-CB313CDD2780}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C6DA783-D03B-47A2-B494-CB313CDD2780}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C6DA783-D03B-47A2-B494-CB313CDD2780}.Release|Any CPU.Build.0 = Release|Any CPU
 		{38C314DD-95E6-4B0C-805E-7D942B9C2D01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{38C314DD-95E6-4B0C-805E-7D942B9C2D01}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38C314DD-95E6-4B0C-805E-7D942B9C2D01}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -23,10 +27,6 @@ Global
 		{AD7CD0D0-EA91-4D46-9FD3-08761AF39E27}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD7CD0D0-EA91-4D46-9FD3-08761AF39E27}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD7CD0D0-EA91-4D46-9FD3-08761AF39E27}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3C6DA783-D03B-47A2-B494-CB313CDD2780}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3C6DA783-D03B-47A2-B494-CB313CDD2780}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3C6DA783-D03B-47A2-B494-CB313CDD2780}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3C6DA783-D03B-47A2-B494-CB313CDD2780}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
