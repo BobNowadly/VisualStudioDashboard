@@ -6,7 +6,13 @@ using Dashboard.DataAccess;
 
 namespace Dashboard
 {
-    public class Historian
+    public interface IHistorian
+    {
+        List<WorkItem> GetCommittedAndClosedWorkItems();
+        BurnUp GetBurnUpDataSince(DateTime since, string area);
+    }
+
+    public class Historian : IHistorian
     {
         private readonly IWorkItemRepository repository;
 

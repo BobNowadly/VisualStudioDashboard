@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width" />
+        <link rel="stylesheet" type="text/css" href="@Links.content.nv_d3_css"/>
+        <style>
+                body {
+                    overflow-y: scroll;
+                }
+
+                text {
+                    font: 12px sans-serif;
+                }
+
+                svg {
+                    display: block;
+                }
+
+                #chart1 svg {
+                    height: 500px;
+                    min-width: 200px;
+                    min-height: 100px;
+                    /*
+              margin: 50px;
+              Minimum height and width is a good idea to prevent negative SVG dimensions...
+              For example width should be =< margin.left + margin.right + 1,
+              of course 1 pixel for the entire chart would not be very useful, BUT should not have errors
+            */
+                }
+
+        </style>
+    </head>
+    <body>
+        <div>
+            @RenderBody()
+        </div>
+
+        <script src="@Links.Scripts.d3_v3_min_js"></script>
+        <script src="@Links.Scripts.nv_d3_min_js"></script>
+        <script src="@Links.Scripts.jquery_2_1_1_min_js"></script>
+        <script src="@Links.Scripts.spin_min_js"></script>
+        @RenderSection("Scripts")
+    </body>
+</html>
