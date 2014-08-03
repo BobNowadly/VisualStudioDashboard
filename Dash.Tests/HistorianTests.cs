@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
+using System.Net.Http;
 using Dashboard;
 using Dashboard.Data;
 using Dashboard.DataAccess;
@@ -109,6 +111,62 @@ namespace Dash.Tests
             Assert.IsFalse(wi.First().DateCommittedTime.HasValue);
         }
 
+        [TestMethod]
+        public void ShoudldGetCommittedAndClosedWorkItemsAsOfACertianDate()
+        {
+            QueryResults allResults = GetTestQueryResult();
+            mockRepo.Setup(s => s.GetPrdouctBacklogItemsAsOf(It.IsAny<string>(), It.IsAny<DateTime>(), It.Is<string>(a => a == null))).ReturnsAsync(allResults);
+            QueryResults closedResults = GetDoneQueryResult();
+            mockRepo.Setup(s => s.GetPrdouctBacklogItemsAsOf(It.IsAny<string>(), It.IsAny<DateTime>(), It.Is<string>(a => a == "Done"))).ReturnsAsync(closedResults);
+           
+            IEnumerable<WorkItemUpdate> workitems = GetTestWorkItems();
+            mockRepo.Setup(s => s.GetWorkItemsAsOf(It.IsAny<DateTime>(), It.Is<int[]>(a => a.Length == 2))).ReturnsAsync(workitems);
+            mockRepo.Setup(s => s.GetWorkItemsAsOf(It.IsAny<DateTime>(), It.Is<int[]>(a => a.Length == 1))).ReturnsAsync(workitems.Where(s => s.State == "Done"));
+
+            var history = new Historian(mockRepo.Object);
+
+            var burnUpData = history.GetBurnUpDataSince(new DateTime(2014, 7, 31), "Test area");
+
+            Assert.AreEqual(11, burnUpData.Requested.First().Count);
+            Assert.AreEqual(3, burnUpData.Completed.First().Count);
+        }
+
+        [TestMethod, TestCategory("IntegrationTest")]
+        public void ShoudldGetCBurnupAsOfACertianDateIntegrationTest()
+        {
+            using (
+                var client = new HttpClient {BaseAddress = new Uri(ConfigurationManager.AppSettings["VSOnlineBaseUrl"])}
+                )
+            {
+                var history = new Historian(
+                    new WorkItemRepository(new TfsConnection(ConfigurationManager.AppSettings["username"],
+                        ConfigurationManager.AppSettings["password"], client)));
+
+                var burnup = history.GetBurnUpDataSince(new DateTime(2014, 7, 31, 23, 59, 59), @"BPS.Scrum\Dev -SEP Project");
+
+                Assert.AreEqual(213, burnup.Requested.First().Count);
+                Assert.AreEqual(38, burnup.Completed.First().Count);
+            }
+        }
+
+        [TestMethod, TestCategory("IntegrationTest")]
+        public void ShouldHaveZerosForDatesThatDoNotHaveCompletedPRBI()
+        {
+            using (
+                var client = new HttpClient { BaseAddress = new Uri(ConfigurationManager.AppSettings["VSOnlineBaseUrl"]) }
+                )
+            {
+                var history = new Historian(
+                    new WorkItemRepository(new TfsConnection(ConfigurationManager.AppSettings["username"],
+                        ConfigurationManager.AppSettings["password"], client)));
+                var firstDate = new DateTime(2014, 7, 7, 23, 59, 59);
+                var burnup = history.GetBurnUpDataSince(firstDate, @"BPS.Scrum\Dev -SEP Project");
+
+                Assert.AreEqual(firstDate.Date, burnup.Completed.First().Date.Date);
+                Assert.AreEqual(0, burnup.Completed.First().Count);
+            }
+        }
+
         private IEnumerable<WorkItemUpdate> GetTestWorkItems()
         {
             return new List<WorkItemUpdate>
@@ -126,6 +184,28 @@ namespace Dash.Tests
                         new WorkItemFieldValue
                         {
                             Value = "8",
+                            Field = new WorkItemField {Name = "Effort"}
+                        }
+                    }
+                },
+                new WorkItemUpdate
+                {
+                    Id = 99,
+                    Fields = new List<WorkItemFieldValue>
+                    {
+                        new WorkItemFieldValue
+                        {
+                            Value = "The title",
+                            Field = new WorkItemField {Name = "Title"}
+                        },
+                        new WorkItemFieldValue
+                        {
+                            Value = "Done",
+                            Field = new WorkItemField {Name = "State"}
+                        },
+                        new WorkItemFieldValue
+                        {
+                            Value = "3",
                             Field = new WorkItemField {Name = "Effort"}
                         }
                     }
@@ -150,6 +230,11 @@ namespace Dash.Tests
                         {
                             Value = "Committed",
                             Field = new WorkItemField {Name = "State"}
+                        },
+                        new WorkItemFieldValue
+                        {
+                            Value = "8",
+                            Field = new WorkItemField {Name = "Effort"}
                         }
                     }
                 },
@@ -172,6 +257,11 @@ namespace Dash.Tests
                             Value = new DateTime(2014, 7, 8).ToShortDateString(),
                             Field = new WorkItemField {Name = "Changed Date"}
                         },
+                        new WorkItemFieldValue
+                        {
+                            Value = "3",
+                            Field = new WorkItemField {Name = "Effort"}
+                        }
                     }
                 }
             };
@@ -185,6 +275,17 @@ namespace Dash.Tests
                 {
                     new QueryResult {SourceId = 88},
                     new QueryResult {SourceId = 89}
+                }
+            };
+        }
+
+        private QueryResults GetDoneQueryResult()
+        {
+            return new QueryResults
+            {
+                Results = new[]
+                {
+                    new QueryResult {SourceId = 88}
                 }
             };
         }

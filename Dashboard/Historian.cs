@@ -48,17 +48,91 @@ namespace Dashboard
                 DateTime? closedDAte = latestStateChange != null && !string.IsNullOrEmpty(latestStateChange.ClosedDate)
                     ? DateTime.Parse(latestStateChange.ClosedDate)
                     : (DateTime?) null;
+
+                var effort = 0;
+                var useEffort = int.TryParse(workitem.Effort, out effort);
                 wi.Add(new WorkItem
                 {
                     DateCommittedTime = dateCommitted,
                     DateClosed = closedDAte,
                     Id = workitem.Id,
-                    Effort = int.Parse(workitem.Effort),
+                    Effort = useEffort ? effort : (int?)null,
                     Title = workitem.Title
                 });
             }
 
             return wi;
         }
+
+        public BurnUp GetBurnUpDataSince(DateTime since, string area)
+        {
+            var dateWeCareAbout = CreateDatesWeCareAbout(since);
+            var requestedSums = new List<WorkItemEffortSum>();
+            var completedSums = new List<WorkItemEffortSum>();
+            
+            foreach (var date in dateWeCareAbout)
+            {
+                var allWorkitemIds = repository.GetPrdouctBacklogItemsAsOf(area, date).Result;
+                var workItems = repository.GetWorkItemsAsOf(date, allWorkitemIds.Results.Select(s => s.SourceId).ToArray());
+
+                var closedWorkitemIds = repository.GetPrdouctBacklogItemsAsOf(area, date, "Done").Result;
+                var closedworkItems = repository.GetWorkItemsAsOf(date, closedWorkitemIds.Results.Select(s => s.SourceId).ToArray());
+
+                var requested = 0;
+                if (workItems.Result != null)
+                {
+                    requested = workItems.Result.Sum(s => string.IsNullOrEmpty(s.Effort) ? 0 : int.Parse(s.Effort));
+                }
+                requestedSums.Add(new WorkItemEffortSum() {Count = requested, Date = date});
+
+                var completed = 0;
+                if (closedworkItems.Result != null)
+                {
+                    completed = closedworkItems.Result
+                        .Sum(s => string.IsNullOrEmpty(s.Effort) ? 0 : int.Parse(s.Effort));
+                }
+                
+                completedSums.Add(new WorkItemEffortSum() {Count = completed, Date = date});
+            }
+          
+            var burnUp = new BurnUp
+            {
+                Requested = requestedSums,
+                Completed = completedSums
+            };
+
+            return burnUp;
+        }
+
+        private List<DateTime> CreateDatesWeCareAbout(DateTime since)
+        {
+            var date = since.Date;
+            var endDate = DateTime.Today;
+            var list = new List<DateTime>();
+
+            while (date <= endDate)
+            {
+                if (date.DayOfWeek != DayOfWeek.Saturday && date.DayOfWeek != DayOfWeek.Sunday)
+                {
+                    list.Add(date);
+                }
+
+                date = date.AddDays(1);
+            }
+
+            return list;
+        }
+    }
+
+    public class BurnUp
+    {
+        public List<WorkItemEffortSum> Requested { get; set; }
+        public List<WorkItemEffortSum> Completed { get; set; }
+    }
+
+    public class WorkItemEffortSum
+    {
+        public DateTime Date { get; set; }
+        public int Count { get; set; }
     }
 }

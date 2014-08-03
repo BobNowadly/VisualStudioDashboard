@@ -68,5 +68,26 @@ namespace Dash.Tests
                 Assert.IsNotNull(wi.Result.First().ClosedDate);
             }
         }
+
+         [TestMethod, TestCategory("IntegrationTest")]
+         public void ShouldGetworkItemsAsOf()
+         {
+             using (var client = new HttpClient() { BaseAddress = new Uri(ConfigurationManager.AppSettings["VSOnlineBaseUrl"]) })
+             {
+                 var connection = new TfsConnection(userName, password, client);
+                 var repo = new WorkItemRepository(connection);
+                 var results = repo.GetPrdouctBacklogItemsAsOf(@"BPS.Scrum\Dev -SEP Project", DateTime.Now.AddDays(-10));
+                 var workItemIds = results.Result.Results.Select(r => r.SourceId).ToArray();
+
+                 var wi = repo.GetWorkItemsAsOf(DateTime.Now.AddDays(-10), workItemIds);
+                 Assert.IsNotNull(wi.Result.First().Id);
+                 Assert.IsNotNull(wi.Result.First().Rev);
+                 Assert.IsNotNull(wi.Result.First().Title);
+                 Assert.IsNotNull(wi.Result.First().Effort);
+                 Assert.IsNotNull(wi.Result.First().State);
+                 Assert.IsNotNull(wi.Result.First().ChangedDate);
+                 Assert.IsNotNull(wi.Result.First().ClosedDate);
+             }
+         }
     }
 }
