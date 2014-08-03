@@ -8,6 +8,7 @@ using WebApplication.Models;
 
 namespace WebApplication.Controllers
 {
+     [Authorize]
     public partial class BurnupController : Controller
     {
         private readonly IHistorian historian;

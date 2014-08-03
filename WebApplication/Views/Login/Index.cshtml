@@ -1,0 +1,27 @@
+﻿@model WebApplication.Models.LoginViewModel
+    @{
+        Layout = "";
+    }
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <link rel="stylesheet" href="@Links.content.bootstrap_min_css" />
+        <link rel="stylesheet" href="@Links.content.Styles_css" />
+     </head>
+<body>
+
+        <div class="container">
+
+            <form class="form-signin" method="POST" action="@Url.Action(MVC.Login.Index())">
+                <h1 class="form-signin-heading text-muted">Sign In</h1>
+                <input id="@Html.IdFor(s => s.UserName)" name="@Html.NameFor(s => s.UserName)" type="text" class="form-control" placeholder="Username" required="" autofocus="">
+                <input id="@Html.IdFor(s => s.Password)" name="@Html.NameFor(s => s.Password)" type="password" class="form-control" placeholder="Password" required="">
+                <button class="btn btn-lg btn-primary btn-block" type="submit">
+                    Sign In
+                </button>
+            </form>
+
+        </div>
+    </body>
+</html>

@@ -3,7 +3,9 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width" />
-        <link rel="stylesheet" type="text/css" href="@Links.content.nv_d3_css"/>
+        <link rel="stylesheet" type="text/css" href="@Links.content.nv_d3_css" />
+        <link rel="stylesheet" type="text/css" href="@Links.content.bootstrap_min_css" />
+        <link rel="stylesheet" type="text/css" href="@Links.content.bootstrap_theme_min_css"/>
         <style>
                 body {
                     overflow-y: scroll;
@@ -32,15 +34,48 @@
 
         </style>
     </head>
-    <body>
-        <div>
-            @RenderBody()
-        </div>
+<body>
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Scrum Reports</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li id="Burnup"><a href="@Url.Action(MVC.Burnup.Index())">Burn Up</a></li>
+                    <li id="CycleTime"><a href="@Url.Action(MVC.CycleTime.Index())">Avg. Cycle Time</a></li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+    <div>
+        @RenderBody()
+    </div>
 
-        <script src="@Links.Scripts.d3_v3_min_js"></script>
-        <script src="@Links.Scripts.nv_d3_min_js"></script>
-        <script src="@Links.Scripts.jquery_2_1_1_min_js"></script>
-        <script src="@Links.Scripts.spin_min_js"></script>
-        @RenderSection("Scripts")
-    </body>
+    <script src="@Links.Scripts.d3_v3_min_js"></script>
+    <script src="@Links.Scripts.nv_d3_min_js"></script>
+    <script src="@Links.Scripts.jquery_2_1_1_min_js"></script>
+    <script src="@Links.Scripts.spin_min_js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            @{
+                var currentAction = Context.Request.RequestContext.RouteData.Values["controller"];
+             }
+            $("#@currentAction").addClass("active");
+        });
+    </script>
+
+    @RenderSection("Scripts")
+</body>
+
 </html>
+

@@ -27,6 +27,7 @@ public static partial class MVC
 {
     public static WebApplication.Controllers.BurnupController Burnup = new WebApplication.Controllers.T4MVC_BurnupController();
     public static WebApplication.Controllers.CycleTimeController CycleTime = new WebApplication.Controllers.T4MVC_CycleTimeController();
+    public static WebApplication.Controllers.LoginController Login = new WebApplication.Controllers.T4MVC_LoginController();
     public static T4MVC.SharedController Shared = new T4MVC.SharedController();
 }
 
@@ -82,6 +83,8 @@ namespace Links
         private const string URLPATH = "~/Scripts";
         public static string Url() { return T4MVCHelpers.ProcessVirtualPath(URLPATH); }
         public static string Url(string fileName) { return T4MVCHelpers.ProcessVirtualPath(URLPATH + "/" + fileName); }
+        public static readonly string bootstrap_js = T4MVCHelpers.IsProduction() && T4Extensions.FileExists(URLPATH + "/bootstrap.min.js") ? Url("bootstrap.min.js") : Url("bootstrap.js");
+        public static readonly string bootstrap_min_js = Url("bootstrap.min.js");
         public static readonly string d3_v3_js = T4MVCHelpers.IsProduction() && T4Extensions.FileExists(URLPATH + "/d3.v3.min.js") ? Url("d3.v3.min.js") : Url("d3.v3.js");
         public static readonly string d3_v3_min_js = Url("d3.v3.min.js");
         public static readonly string jquery_2_1_1_intellisense_js = T4MVCHelpers.IsProduction() && T4Extensions.FileExists(URLPATH + "/jquery-2.1.1.intellisense.min.js") ? Url("jquery-2.1.1.intellisense.min.js") : Url("jquery-2.1.1.intellisense.js");
@@ -99,7 +102,17 @@ namespace Links
         private const string URLPATH = "~/content";
         public static string Url() { return T4MVCHelpers.ProcessVirtualPath(URLPATH); }
         public static string Url(string fileName) { return T4MVCHelpers.ProcessVirtualPath(URLPATH + "/" + fileName); }
+        public static readonly string bootstrap_theme_css = T4MVCHelpers.IsProduction() && T4Extensions.FileExists(URLPATH + "/bootstrap-theme.min.css") ? Url("bootstrap-theme.min.css") : Url("bootstrap-theme.css");
+             
+        public static readonly string bootstrap_theme_css_map = Url("bootstrap-theme.css.map");
+        public static readonly string bootstrap_theme_min_css = Url("bootstrap-theme.min.css");
+        public static readonly string bootstrap_css = T4MVCHelpers.IsProduction() && T4Extensions.FileExists(URLPATH + "/bootstrap.min.css") ? Url("bootstrap.min.css") : Url("bootstrap.css");
+             
+        public static readonly string bootstrap_css_map = Url("bootstrap.css.map");
+        public static readonly string bootstrap_min_css = Url("bootstrap.min.css");
         public static readonly string nv_d3_css = T4MVCHelpers.IsProduction() && T4Extensions.FileExists(URLPATH + "/nv.d3.min.css") ? Url("nv.d3.min.css") : Url("nv.d3.css");
+             
+        public static readonly string Styles_css = T4MVCHelpers.IsProduction() && T4Extensions.FileExists(URLPATH + "/Styles.min.css") ? Url("Styles.min.css") : Url("Styles.css");
              
     }
 

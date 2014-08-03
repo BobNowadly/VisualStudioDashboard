@@ -8,6 +8,7 @@ using WebApplication.Models;
 
 namespace WebApplication.Controllers
 {
+    [Authorize]
     public partial class CycleTimeController : Controller
     {
         private readonly IHistorian historian;
