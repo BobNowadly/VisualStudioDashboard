@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using Dashboard.Data;
 using Dashboard.DataAccess;
 
@@ -11,6 +12,7 @@ namespace Dashboard
         List<WorkItem> GetCommittedAndClosedWorkItems(string area);
         BurnUp GetBurnUpDataSince(DateTime since, string area);
         List<WorkItemEffortAverage> GetEffortCycleTimeAverage(string area);
+        BurnDown GetBurnDown(DateTime startDate, DateTime endDate, string area);
     }
 
     public class Historian : IHistorian
@@ -111,10 +113,12 @@ namespace Dashboard
             return burnUp;
         }
 
-        private List<DateTime> CreateDatesWeCareAbout(DateTime since)
+        private static IEnumerable<DateTime> CreateDatesWeCareAbout(DateTime since, DateTime? theEndDate = null)
         {
             var date = since.Date.AddHours(23).AddMinutes(59);
-            var endDate = DateTime.Today.AddHours(23).AddMinutes(59);
+            var endDate = theEndDate != null
+                ? theEndDate.Value.Date.AddHours(23).AddMinutes(59)
+                : DateTime.Today.AddHours(23).AddMinutes(59);
             var list = new List<DateTime>();
 
             while (date <= endDate)
@@ -150,7 +154,29 @@ namespace Dashboard
             return data.OrderBy(s => s.Effort).ToList();
         }
 
-      
+        public BurnDown GetBurnDown(DateTime startDate, DateTime endDate, string area)
+        {
+            var burnUp = GetBurnUpDataSince(startDate, area);
+            var burndown = burnUp.Requested.Select((t, i) => new WorkItemEffortSum()
+            {
+                Count = t.Count - burnUp.Completed[i].Count, Date = t.Date
+            }).ToList();
+
+            var ideal = burnUp.Requested.First().Count;
+
+            var theBurndown = new BurnDown()
+            {
+                Remaining = burndown,
+                Ideal = new List<WorkItemEffortSum>()
+                {
+                    new WorkItemEffortSum() {Count = ideal, Date = startDate},
+                    new WorkItemEffortSum() {Count = 0, Date = endDate}
+                }
+            };
+
+            return theBurndown;
+        }
+
         private int CountWorkDays(DateTime startDate, DateTime endDate, List<DateTime> excludedDates)
         {
             int dayCount = 0;
@@ -182,15 +208,19 @@ namespace Dashboard
             }
 
             return dayCount - 1;
-        }
-
-                                      
+        }                                      
     }
 
     public class BurnUp
     {
         public List<WorkItemEffortSum> Requested { get; set; }
         public List<WorkItemEffortSum> Completed { get; set; }
+    }
+
+    public class BurnDown
+    {
+        public List<WorkItemEffortSum> Ideal { get; set; }
+        public List<WorkItemEffortSum> Remaining { get; set; }
     }
 
     public class WorkItemEffortSum

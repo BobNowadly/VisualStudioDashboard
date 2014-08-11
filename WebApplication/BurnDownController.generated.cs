@@ -23,13 +23,10 @@ using System.Web.Routing;
 using T4MVC;
 namespace WebApplication.Controllers
 {
-    public partial class LoginController
+    public partial class BurnDownController
     {
         [GeneratedCode("T4MVC", "2.0"), DebuggerNonUserCode]
-        public LoginController() { }
-
-        [GeneratedCode("T4MVC", "2.0"), DebuggerNonUserCode]
-        protected LoginController(Dummy d) { }
+        protected BurnDownController(Dummy d) { }
 
         [GeneratedCode("T4MVC", "2.0"), DebuggerNonUserCode]
         protected RedirectToRouteResult RedirectToAction(ActionResult result)
@@ -59,13 +56,13 @@ namespace WebApplication.Controllers
 
 
         [GeneratedCode("T4MVC", "2.0"), DebuggerNonUserCode]
-        public LoginController Actions { get { return MVC.Login; } }
+        public BurnDownController Actions { get { return MVC.BurnDown; } }
         [GeneratedCode("T4MVC", "2.0")]
         public readonly string Area = "";
         [GeneratedCode("T4MVC", "2.0")]
-        public readonly string Name = "Login";
+        public readonly string Name = "BurnDown";
         [GeneratedCode("T4MVC", "2.0")]
-        public const string NameConst = "Login";
+        public const string NameConst = "BurnDown";
 
         static readonly ActionNamesClass s_actions = new ActionNamesClass();
         [GeneratedCode("T4MVC", "2.0"), DebuggerNonUserCode]
@@ -74,23 +71,17 @@ namespace WebApplication.Controllers
         public class ActionNamesClass
         {
             public readonly string Index = "Index";
+            public readonly string GetData = "GetData";
         }
 
         [GeneratedCode("T4MVC", "2.0"), DebuggerNonUserCode]
         public class ActionNameConstants
         {
             public const string Index = "Index";
+            public const string GetData = "GetData";
         }
 
 
-        static readonly ActionParamsClass_Index s_params_Index = new ActionParamsClass_Index();
-        [GeneratedCode("T4MVC", "2.0"), DebuggerNonUserCode]
-        public ActionParamsClass_Index IndexParams { get { return s_params_Index; } }
-        [GeneratedCode("T4MVC", "2.0"), DebuggerNonUserCode]
-        public class ActionParamsClass_Index
-        {
-            public readonly string model = "model";
-        }
         static readonly ViewsClass s_views = new ViewsClass();
         [GeneratedCode("T4MVC", "2.0"), DebuggerNonUserCode]
         public ViewsClass Views { get { return s_views; } }
@@ -103,14 +94,14 @@ namespace WebApplication.Controllers
             {
                 public readonly string Index = "Index";
             }
-            public readonly string Index = "~/Views/Login/Index.cshtml";
+            public readonly string Index = "~/Views/BurnDown/Index.cshtml";
         }
     }
 
     [GeneratedCode("T4MVC", "2.0"), DebuggerNonUserCode]
-    public partial class T4MVC_LoginController : WebApplication.Controllers.LoginController
+    public partial class T4MVC_BurnDownController : WebApplication.Controllers.BurnDownController
     {
-        public T4MVC_LoginController() : base(Dummy.Instance) { }
+        public T4MVC_BurnDownController() : base(Dummy.Instance) { }
 
         [NonAction]
         partial void IndexOverride(T4MVC_System_Web_Mvc_ActionResult callInfo);
@@ -124,14 +115,13 @@ namespace WebApplication.Controllers
         }
 
         [NonAction]
-        partial void IndexOverride(T4MVC_System_Web_Mvc_ActionResult callInfo, WebApplication.Models.LoginViewModel model);
+        partial void GetDataOverride(T4MVC_System_Web_Mvc_JsonResult callInfo);
 
         [NonAction]
-        public override System.Web.Mvc.ActionResult Index(WebApplication.Models.LoginViewModel model)
+        public override System.Web.Mvc.JsonResult GetData()
         {
-            var callInfo = new T4MVC_System_Web_Mvc_ActionResult(Area, Name, ActionNames.Index);
-            ModelUnbinderHelpers.AddRouteValues(callInfo.RouteValueDictionary, "model", model);
-            IndexOverride(callInfo, model);
+            var callInfo = new T4MVC_System_Web_Mvc_JsonResult(Area, Name, ActionNames.GetData);
+            GetDataOverride(callInfo);
             return callInfo;
         }
 

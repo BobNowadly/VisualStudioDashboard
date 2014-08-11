@@ -25,6 +25,7 @@ using T4MVC;
 [GeneratedCode("T4MVC", "2.0"), DebuggerNonUserCode]
 public static partial class MVC
 {
+    public static WebApplication.Controllers.BurnDownController BurnDown = new WebApplication.Controllers.T4MVC_BurnDownController();
     public static WebApplication.Controllers.BurnupController Burnup = new WebApplication.Controllers.T4MVC_BurnupController();
     public static WebApplication.Controllers.CycleTimeController CycleTime = new WebApplication.Controllers.T4MVC_CycleTimeController();
     public static WebApplication.Controllers.LoginController Login = new WebApplication.Controllers.T4MVC_LoginController();
