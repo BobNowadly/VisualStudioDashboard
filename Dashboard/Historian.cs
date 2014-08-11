@@ -113,8 +113,8 @@ namespace Dashboard
 
         private List<DateTime> CreateDatesWeCareAbout(DateTime since)
         {
-            var date = since.Date;
-            var endDate = DateTime.Today;
+            var date = since.Date.AddHours(23).AddMinutes(59);
+            var endDate = DateTime.Today.AddHours(23).AddMinutes(59);
             var list = new List<DateTime>();
 
             while (date <= endDate)

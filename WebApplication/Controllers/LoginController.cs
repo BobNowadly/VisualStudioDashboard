@@ -17,7 +17,7 @@ namespace WebApplication.Controllers
             return View();
         }
 
-
+        // TODO: Need to change to impersonate the user that is logged in.
         [HttpPost]
         [AllowAnonymous]
         public virtual ActionResult Index(LoginViewModel model)
