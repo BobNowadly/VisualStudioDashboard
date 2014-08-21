@@ -144,8 +144,8 @@ namespace Dash.Tests
 
                 var burnup = history.GetBurnUpDataSince(new DateTime(2014, 7, 31, 23, 59, 59), @"BPS.Scrum\Dev -SEP Project");
 
-                Assert.AreEqual(213, burnup.Requested.First().Count);
-                Assert.AreEqual(38, burnup.Completed.First().Count);
+                Assert.AreEqual(224, burnup.Requested.First().Count);
+                Assert.AreEqual(40, burnup.Completed.First().Count);
             }
         }
 

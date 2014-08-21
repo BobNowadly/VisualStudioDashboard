@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
+using System.Threading.Tasks;
 using Dashboard.Data;
 using Dashboard.DataAccess;
 
@@ -75,35 +76,15 @@ namespace Dashboard
 
         public BurnUp GetBurnUpDataSince(DateTime since, string area)
         {
-            var dateWeCareAbout = CreateDatesWeCareAbout(since);
+            var dateWeCareAbout = CreateDatesWeCareAbout(since).ToList();
             var requestedSums = new List<WorkItemEffortSum>();
             var completedSums = new List<WorkItemEffortSum>();
-            
+
             foreach (var date in dateWeCareAbout)
             {
-                var allWorkitemIds = repository.GetPrdouctBacklogItemsAsOf(area, date).Result;
-                var workItems = repository.GetWorkItemsAsOf(date, allWorkitemIds.Results.Select(s => s.SourceId).ToArray());
-
-                var closedWorkitemIds = repository.GetPrdouctBacklogItemsAsOf(area, date, "Done").Result;
-                var closedworkItems = repository.GetWorkItemsAsOf(date, closedWorkitemIds.Results.Select(s => s.SourceId).ToArray());
-
-                var requested = 0;
-                if (workItems.Result != null)
-                {
-                    requested = workItems.Result.Sum(s => string.IsNullOrEmpty(s.Effort) ? 0 : int.Parse(s.Effort));
-                }
-                requestedSums.Add(new WorkItemEffortSum() {Count = requested, Date = date});
-
-                var completed = 0;
-                if (closedworkItems.Result != null)
-                {
-                    completed = closedworkItems.Result
-                        .Sum(s => string.IsNullOrEmpty(s.Effort) ? 0 : int.Parse(s.Effort));
-                }
-                
-                completedSums.Add(new WorkItemEffortSum() {Count = completed, Date = date});
-            }
-          
+                requestedSums.Add(GetWorkItemSumByDate(area, date));
+                completedSums.Add(GetWorkItemSumByDate(area, date, "Done"));
+            }            
             var burnUp = new BurnUp
             {
                 Requested = requestedSums,
@@ -112,7 +93,23 @@ namespace Dashboard
 
             return burnUp;
         }
+          
+        private WorkItemEffortSum GetWorkItemSumByDate(string area, DateTime date, string state = null)
+        {
+            var allWorkitemIds = repository.GetPrdouctBacklogItemsAsOf(area, date, state).Result;
+            var workItems = repository.GetWorkItemsAsOf(date, allWorkitemIds.Results.Select(s => s.SourceId).ToArray()).Result;
 
+            var sum = 0;
+            if (workItems != null)
+            {
+                sum = workItems.Sum(s => string.IsNullOrEmpty(s.Effort) ? 0 : int.Parse(s.Effort));
+            }
+
+            var summedEffort = new WorkItemEffortSum { Count = sum, Date = date };
+
+            return summedEffort;
+        }
+    
         private static IEnumerable<DateTime> CreateDatesWeCareAbout(DateTime since, DateTime? theEndDate = null)
         {
             var date = since.Date.AddHours(23).AddMinutes(59);
@@ -164,13 +161,13 @@ namespace Dashboard
 
             var ideal = burnUp.Requested.First().Count;
 
-            var theBurndown = new BurnDown()
+            var theBurndown = new BurnDown
             {
                 Remaining = burndown,
-                Ideal = new List<WorkItemEffortSum>()
+                Ideal = new List<WorkItemEffortSum>
                 {
-                    new WorkItemEffortSum() {Count = ideal, Date = startDate},
-                    new WorkItemEffortSum() {Count = 0, Date = endDate}
+                    new WorkItemEffortSum {Count = ideal, Date = startDate},
+                    new WorkItemEffortSum {Count = 0, Date = endDate}
                 }
             };
 
