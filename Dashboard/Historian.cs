@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Threading.Tasks;
 using Dashboard.Data;
 using Dashboard.DataAccess;
 
@@ -11,9 +9,9 @@ namespace Dashboard
     public interface IHistorian
     {
         List<WorkItem> GetCommittedAndClosedWorkItems(string area);
-        BurnUp GetBurnUpDataSince(DateTime since, string area);
+        List<ChartSeries> GetBurnUpDataSince(DateTime since, string area);
         List<WorkItemEffortAverage> GetEffortCycleTimeAverage(string area);
-        BurnDown GetBurnDown(DateTime startDate, DateTime endDate, string area);
+        List<ChartSeries> GetBurnDown(DateTime startDate, DateTime endDate, string area);
     }
 
     public class Historian : IHistorian
@@ -74,27 +72,26 @@ namespace Dashboard
             return wi;
         }
 
-        public BurnUp GetBurnUpDataSince(DateTime since, string area)
+        public List<ChartSeries> GetBurnUpDataSince(DateTime since, string area)
         {
             var dateWeCareAbout = CreateDatesWeCareAbout(since).ToList();
-            var requestedSums = new List<WorkItemEffortSum>();
-            var completedSums = new List<WorkItemEffortSum>();
+            var requestedSums = new List<Metric>();
+            var completedSums = new List<Metric>();
 
             foreach (var date in dateWeCareAbout)
             {
                 requestedSums.Add(GetWorkItemSumByDate(area, date));
                 completedSums.Add(GetWorkItemSumByDate(area, date, "Done"));
-            }            
-            var burnUp = new BurnUp
+            }       
+            
+            return new List<ChartSeries>
             {
-                Requested = requestedSums,
-                Completed = completedSums
+                new ChartSeries {Title = "Requested", Data = requestedSums},
+                new ChartSeries {Title = "Completed", Data = completedSums}
             };
-
-            return burnUp;
         }
-          
-        private WorkItemEffortSum GetWorkItemSumByDate(string area, DateTime date, string state = null)
+
+        private Metric GetWorkItemSumByDate(string area, DateTime date, string state = null)
         {
             var allWorkitemIds = repository.GetPrdouctBacklogItemsAsOf(area, date, state).Result;
             var workItems = repository.GetWorkItemsAsOf(date, allWorkitemIds.Results.Select(s => s.SourceId).ToArray()).Result;
@@ -105,7 +102,7 @@ namespace Dashboard
                 sum = workItems.Sum(s => string.IsNullOrEmpty(s.Effort) ? 0 : int.Parse(s.Effort));
             }
 
-            var summedEffort = new WorkItemEffortSum { Count = sum, Date = date };
+            var summedEffort = new Metric { Value = sum, Date = date };
 
             return summedEffort;
         }
@@ -151,23 +148,35 @@ namespace Dashboard
             return data.OrderBy(s => s.Effort).ToList();
         }
 
-        public BurnDown GetBurnDown(DateTime startDate, DateTime endDate, string area)
+        public List<ChartSeries> GetBurnDown(DateTime startDate, DateTime endDate, string area)
         {
             var burnUp = GetBurnUpDataSince(startDate, area);
-            var burndown = burnUp.Requested.Select((t, i) => new WorkItemEffortSum()
+            var requested = burnUp.First(s => s.Title == "Requested").Data;
+            var completed = burnUp.First(s => s.Title == "Completed").Data.ToList();
+
+            var burndown = requested.Select((t, i) => new Metric()
             {
-                Count = t.Count - burnUp.Completed[i].Count, Date = t.Date
+                Value = (int)t.Value - (int)completed[i].Value,
+                Date = t.Date
             }).ToList();
 
-            var ideal = burnUp.Requested.First().Count;
+            var ideal = requested.First().Value;
 
-            var theBurndown = new BurnDown
+            var theBurndown = new List<ChartSeries>
             {
-                Remaining = burndown,
-                Ideal = new List<WorkItemEffortSum>
+                new ChartSeries
                 {
-                    new WorkItemEffortSum {Count = ideal, Date = startDate},
-                    new WorkItemEffortSum {Count = 0, Date = endDate}
+                    Title = "Remaining",
+                    Data = burndown
+                },
+                new ChartSeries
+                {
+                    Title = "Ideal",
+                    Data = new List<Metric>
+                    {
+                        new Metric {Value = ideal, Date = startDate},
+                        new Metric {Value = 0, Date = endDate}
+                    }
                 }
             };
 
@@ -213,22 +222,28 @@ namespace Dashboard
         public List<WorkItemEffortSum> Requested { get; set; }
         public List<WorkItemEffortSum> Completed { get; set; }
     }
-
-    public class BurnDown
-    {
-        public List<WorkItemEffortSum> Ideal { get; set; }
-        public List<WorkItemEffortSum> Remaining { get; set; }
-    }
-
+    
     public class WorkItemEffortSum
     {
         public DateTime Date { get; set; }
         public int Count { get; set; }
     }
 
+    public class Metric
+    {
+        public DateTime Date { get; set; }
+        public object Value { get; set; }
+    }
+ 
     public class WorkItemEffortAverage
     {
         public int Effort { get; set; }
         public double AverageDays { get; set; }
     }
+
+    public class ChartSeries
+    {
+        public string Title { get; set; }
+        public List<Metric> Data { get; set; }
+    }    
 }

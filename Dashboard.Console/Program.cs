@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -35,14 +36,14 @@ namespace Dashboard.Console
                 {
                     var csvWriter = new CsvWriter(writer, new CsvConfiguration { Delimiter = "\t" });
 
-                    csvWriter.WriteRecords(burnup.Completed);
+                    csvWriter.WriteRecords(burnup.First(s => s.Title == "Completed").Data);
                 }
 
                 using (var writer = new StreamWriter(@".\requested" + DateTime.Now.ToString("yyyymmmmdd") + ".xls"))
                 {
                     var csvWriter = new CsvWriter(writer, new CsvConfiguration { Delimiter = "\t" });
 
-                    csvWriter.WriteRecords(burnup.Requested);
+                    csvWriter.WriteRecords(burnup.First(s => s.Title == "Requested").Data);
                 }
             }
         }

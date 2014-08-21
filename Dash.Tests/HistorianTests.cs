@@ -127,8 +127,8 @@ namespace Dash.Tests
 
             var burnUpData = history.GetBurnUpDataSince(new DateTime(2014, 7, 31), "Test area");
 
-            Assert.AreEqual(11, burnUpData.Requested.First().Count);
-            Assert.AreEqual(3, burnUpData.Completed.First().Count);
+            Assert.AreEqual(11, burnUpData.First(s => s.Title == "Requested").Data.Count);
+            Assert.AreEqual(11, burnUpData.First(s => s.Title == "Completed").Data.Count);          
         }
 
         [TestMethod, TestCategory("IntegrationTest")]
@@ -144,8 +144,8 @@ namespace Dash.Tests
 
                 var burnup = history.GetBurnUpDataSince(new DateTime(2014, 7, 31, 23, 59, 59), @"BPS.Scrum\Dev -SEP Project");
 
-                Assert.AreEqual(224, burnup.Requested.First().Count);
-                Assert.AreEqual(40, burnup.Completed.First().Count);
+                Assert.AreEqual(224, (int)burnup.First(s => s.Title == "Requested").Data.First().Value);
+                Assert.AreEqual(40, (int)burnup.First(s => s.Title == "Completed").Data.First().Value);            
             }
         }
 
@@ -162,8 +162,8 @@ namespace Dash.Tests
                 var firstDate = new DateTime(2014, 7, 7, 23, 59, 59);
                 var burnup = history.GetBurnUpDataSince(firstDate, @"BPS.Scrum\Dev -SEP Project");
 
-                Assert.AreEqual(firstDate.Date, burnup.Completed.First().Date.Date);
-                Assert.AreEqual(0, burnup.Completed.First().Count);
+                Assert.AreEqual(firstDate.Date, burnup.First(s => s.Title == "Completed").Data.First().Date);
+                Assert.AreEqual(0, (int)burnup.First(s => s.Title == "Completed").Data.First().Value );               
             }
         }
 

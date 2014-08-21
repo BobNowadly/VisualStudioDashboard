@@ -12,6 +12,12 @@ namespace WebApplication.Controllers
     public partial class BurnupController : Controller
     {
         private readonly IHistorian historian;
+        //TODO: This kind of sucks can we do something better? 
+        private readonly Dictionary<string, string> colors = new Dictionary<string, string>
+        {
+            {"Requested", "#ff7f0e"},
+            {"Completed", "#2ca02c"}
+        };
 
         public BurnupController(IHistorian historian)
         {
@@ -26,19 +32,21 @@ namespace WebApplication.Controllers
 
         public virtual JsonResult GetData()
         {
-            var burnupData = historian.GetBurnUpDataSince(new DateTime(2014, 7, 9, 23, 59, 59),  @"BPS.Scrum\Dev -SEP Project");
-            var requestedViewModel = CreateViewModel(burnupData.Requested, "Requested Points", "#ff7f0e");
-            var completedViewModel = CreateViewModel(burnupData.Completed, "Completed Points", "#2ca02c");
+            var burnupData = historian.GetBurnUpDataSince(new DateTime(2014, 7, 9, 23, 59, 59),  @"BPS.Scrum\Dev -SEP Project");        
 
-            return Json(new[] { requestedViewModel, completedViewModel }, JsonRequestBehavior.AllowGet);
+               var series =
+                burnupData.Select(d => CreateViewModel(d.Data, d.Title, colors[d.Title]));
+
+            return Json(series, JsonRequestBehavior.AllowGet);
         }
-
-        private ChartSeriesViewModel CreateViewModel(IEnumerable<WorkItemEffortSum> data, string seriesTitle, string colorString)
+        
+        // TODO: Add Automapper
+        private ChartSeriesViewModel CreateViewModel(IEnumerable<Metric> data, string seriesTitle, string colorString)
         {
             return new ChartSeriesViewModel
             {
                 values =
-                    data.Select(s => new PointViewModel { x = s.Date.ToInt(), y = s.Count })
+                    data.Select(s => new PointViewModel { x = s.Date.ToInt(), y = s.Value })
                         .ToList(),
                 key = seriesTitle,
                 color = colorString
