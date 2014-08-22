@@ -31,7 +31,7 @@ namespace Dashboard.DataAccess
                         From WorkItems 
                         Where [System.WorkItemType] = 'Product Backlog Item' 
                         AND [State] <> 'Removed' AND [State] EVER 'Closed' or [State] EVER 'Committed'
-                        AND [Area Path] =  '{0}'
+                        AND [Area Path] Under  '{0}'
                         order by [Microsoft.VSTS.Common.Priority] asc, [System.CreatedDate] desc", area);
 
             using (Task<HttpResponseMessage> response = connection.PostAsync("queryresults?&api-version=1.0-preview",
@@ -98,7 +98,7 @@ namespace Dashboard.DataAccess
                         Where [System.WorkItemType] = 'Product Backlog Item'
                         AND [State] <> 'Removed'" 
                         + stateString + 
-                        @"AND [Area Path] =  '{0}'
+                        @"AND [Area Path] Under '{0}'
                         asof '{1}'
                         order by [Microsoft.VSTS.Common.Priority] asc, [System.CreatedDate] desc", area, asOfDate);
 
