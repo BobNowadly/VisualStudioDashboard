@@ -13,7 +13,7 @@ namespace Dashboard.DataAccess
         Task<IEnumerable<WorkItemUpdate>> GetWorkItemUpdates(int workItemId);
         Task<IEnumerable<WorkItemUpdate>> GetWorkItems(params int[] ids);
         Task<IEnumerable<WorkItemUpdate>> GetWorkItemsAsOf(DateTime asOf, params int[] ids);
-        Task<QueryResults> GetPrdouctBacklogItemsAsOf(string area, DateTime asOfDate, string state = null);
+        Task<QueryResults> GetPrdouctBacklogItemsAsOf(string area, DateTime asOfDate, string state = null, string workitemType = null);
     }
 
     public class WorkItemRepository : IWorkItemRepository
@@ -89,18 +89,19 @@ namespace Dashboard.DataAccess
             }
         }
 
-        public async Task<QueryResults> GetPrdouctBacklogItemsAsOf(string area, DateTime asOfDate, string state = null)
+        public async Task<QueryResults> GetPrdouctBacklogItemsAsOf(string area, DateTime asOfDate, string state = null, string workitemType = null)
         {
             var stateString = state != null ? "AND [State] = '" + state + "'" : string.Empty;
+            var wit = workitemType ?? "Product Backlog Item";
 
             string query = string.Format(@"Select [System.Id], [System.Title], [System.State], [Microsoft.VSTS.Scheduling.Effort]
                         From WorkItems 
-                        Where [System.WorkItemType] = 'Product Backlog Item'
+                        Where [System.WorkItemType] = '{2}'
                         AND [State] <> 'Removed'" 
                         + stateString + 
                         @"AND [Area Path] Under '{0}'
                         asof '{1}'
-                        order by [Microsoft.VSTS.Common.Priority] asc, [System.CreatedDate] desc", area, asOfDate);
+                        order by [Microsoft.VSTS.Common.Priority] asc, [System.CreatedDate] desc", area, asOfDate, wit);
 
             using (Task<HttpResponseMessage> response = connection.PostAsync("queryresults?&api-version=1.0-preview",
                 new KeyValuePair<string, string>("wiql", query)))

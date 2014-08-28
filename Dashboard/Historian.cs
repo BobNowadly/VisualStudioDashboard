@@ -12,6 +12,7 @@ namespace Dashboard
         List<ChartSeries> GetBurnUpDataSince(DateTime since, string area);
         List<WorkItemEffortAverage> GetEffortCycleTimeAverage(string area);
         List<ChartSeries> GetBurnDown(DateTime startDate, DateTime endDate, string area);
+        List<ChartSeries> GetBugsSince(DateTime since, string area);
     }
 
     public class Historian : IHistorian
@@ -91,9 +92,45 @@ namespace Dashboard
             };
         }
 
-        private Metric GetWorkItemSumByDate(string area, DateTime date, string state = null)
+        public List<ChartSeries> GetBugsSince(DateTime since, string area)
         {
-            var allWorkitemIds = repository.GetPrdouctBacklogItemsAsOf(area, date, state).Result;
+            var dateWeCareAbout = CreateDatesWeCareAbout(since).ToList();
+            var requestedSums = new List<Metric>();
+            var completedSums = new List<Metric>();
+
+            foreach (var date in dateWeCareAbout)
+            {
+                requestedSums.Add(GetWorkItemCountByDate(area, date, null, "Bug" ));
+                completedSums.Add(GetWorkItemCountByDate(area, date, "Done", "Bug"));
+            }
+
+            return new List<ChartSeries>
+            {
+                new ChartSeries {Title = "Found", Data = requestedSums},
+                new ChartSeries {Title = "Completed", Data = completedSums}
+            };
+        }
+
+        // TODO: REfactor
+        private Metric GetWorkItemCountByDate(string area, DateTime date, string state = null, string workItemType = null)
+        {
+            var allWorkitemIds = repository.GetPrdouctBacklogItemsAsOf(area, date, state, workItemType).Result;
+            var workItems = repository.GetWorkItemsAsOf(date, allWorkitemIds.Results.Select(s => s.SourceId).ToArray()).Result;
+
+            var sum = 0;
+            if (workItems != null)
+            {
+                sum = workItems.Count();
+            }
+
+            var count = new Metric { Value = sum, Date = date };
+
+            return count;
+        }
+
+        private Metric GetWorkItemSumByDate(string area, DateTime date, string state = null, string workItemType = null)
+        {
+            var allWorkitemIds = repository.GetPrdouctBacklogItemsAsOf(area, date, state, workItemType).Result;
             var workItems = repository.GetWorkItemsAsOf(date, allWorkitemIds.Results.Select(s => s.SourceId).ToArray()).Result;
 
             var sum = 0;

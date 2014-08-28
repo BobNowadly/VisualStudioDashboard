@@ -1,0 +1,32 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "title";
+}
+<h1>Bugs</h1>
+<div id="spinner"></div>
+<div id="chart1" class="chartDiv">
+    <svg style="height: 500px; width: 900px"></svg>
+</div>
+
+@section Scripts {
+
+    <script type="text/javascript">
+        var spinner = $("#spinner").doSpin();
+
+        $(function () {
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action(MVC.Bugs.GetData())",
+                success: function (data) {
+                    var chartFactory = new DateChartFactory({
+                        data: data,
+                        yAxisLabel: "# of Bugs"
+                    });
+                    chartFactory.create('#chart1 svg');
+                    spinner.stop();
+                }
+            });
+        });
+    </script>
+}

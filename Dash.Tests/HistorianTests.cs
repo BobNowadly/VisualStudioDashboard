@@ -115,9 +115,9 @@ namespace Dash.Tests
         public void ShoudldGetCommittedAndClosedWorkItemsAsOfACertianDate()
         {
             QueryResults allResults = GetTestQueryResult();
-            mockRepo.Setup(s => s.GetPrdouctBacklogItemsAsOf(It.IsAny<string>(), It.IsAny<DateTime>(), It.Is<string>(a => a == null))).ReturnsAsync(allResults);
+            mockRepo.Setup(s => s.GetPrdouctBacklogItemsAsOf(It.IsAny<string>(), It.IsAny<DateTime>(), It.Is<string>(a => a == null), It.Is<string>(a => a == null))).ReturnsAsync(allResults);
             QueryResults closedResults = GetDoneQueryResult();
-            mockRepo.Setup(s => s.GetPrdouctBacklogItemsAsOf(It.IsAny<string>(), It.IsAny<DateTime>(), It.Is<string>(a => a == "Done"))).ReturnsAsync(closedResults);
+            mockRepo.Setup(s => s.GetPrdouctBacklogItemsAsOf(It.IsAny<string>(), It.IsAny<DateTime>(), It.Is<string>(a => a == "Done"), It.Is<string>(a => a == null))).ReturnsAsync(closedResults);
            
             IEnumerable<WorkItemUpdate> workitems = GetTestWorkItems();
             mockRepo.Setup(s => s.GetWorkItemsAsOf(It.IsAny<DateTime>(), It.Is<int[]>(a => a.Length == 2))).ReturnsAsync(workitems);
@@ -125,10 +125,10 @@ namespace Dash.Tests
 
             var history = new Historian(mockRepo.Object);
 
-            var burnUpData = history.GetBurnUpDataSince(new DateTime(2014, 7, 31), "Test area");
+            var burnUpData = history.GetBurnUpDataSince(new DateTime(2014, 7, 30), "Test area");
 
-            Assert.AreEqual(11, burnUpData.First(s => s.Title == "Requested").Data.Count);
-            Assert.AreEqual(11, burnUpData.First(s => s.Title == "Completed").Data.Count);          
+            Assert.AreEqual(22, burnUpData.First(s => s.Title == "Requested").Data.Count);
+            Assert.AreEqual(22, burnUpData.First(s => s.Title == "Completed").Data.Count);          
         }
 
         [TestMethod, TestCategory("IntegrationTest")]
@@ -142,10 +142,10 @@ namespace Dash.Tests
                     new WorkItemRepository(new TfsConnection(ConfigurationManager.AppSettings["username"],
                         ConfigurationManager.AppSettings["password"], client)));
 
-                var burnup = history.GetBurnUpDataSince(new DateTime(2014, 7, 31, 23, 59, 59), @"BPS.Scrum\Dev -SEP Project");
+                var burnup = history.GetBurnUpDataSince(new DateTime(2014, 7, 30, 23, 59, 59), @"BPS.Scrum\Dev -SEP Project");
 
-                Assert.AreEqual(224, (int)burnup.First(s => s.Title == "Requested").Data.First().Value);
-                Assert.AreEqual(40, (int)burnup.First(s => s.Title == "Completed").Data.First().Value);            
+                Assert.AreEqual(221, (int)burnup.First(s => s.Title == "Requested").Data.First().Value);
+                Assert.AreEqual(38, (int)burnup.First(s => s.Title == "Completed").Data.First().Value);            
             }
         }
 
@@ -162,7 +162,7 @@ namespace Dash.Tests
                 var firstDate = new DateTime(2014, 7, 7, 23, 59, 59);
                 var burnup = history.GetBurnUpDataSince(firstDate, @"BPS.Scrum\Dev -SEP Project");
 
-                Assert.AreEqual(firstDate.Date, burnup.First(s => s.Title == "Completed").Data.First().Date);
+                Assert.AreEqual(firstDate.Date.Date, burnup.First(s => s.Title == "Completed").Data.First().Date.Date);
                 Assert.AreEqual(0, (int)burnup.First(s => s.Title == "Completed").Data.First().Value );               
             }
         }
