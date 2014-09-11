@@ -2,6 +2,6 @@
 {
     public class QueryResult
     {
-        public int SourceId { get; set; }
+        public int Id { get; set; }
     }
 }

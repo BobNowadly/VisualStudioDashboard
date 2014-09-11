@@ -30,7 +30,7 @@ namespace Dash.Tests
                 var repo = new WorkItemRepository(connection);
                 var results = repo.GetInProcAndClosedWorkItems(@"BPS.Scrum\Dev -SEP Project");
 
-                Assert.IsTrue(results.Result.Results.All(r => r.SourceId != 0));
+                Assert.IsTrue(results.Result.WorkItems.All(r => r.Id != 0));
             }
         }
 
@@ -43,8 +43,8 @@ namespace Dash.Tests
                 var repo = new WorkItemRepository(connection);
 
                 var results = repo.GetWorkItemUpdates(86);
-                Assert.IsTrue(results.Result.All(s => s.Fields[0].Field != null));
-                Assert.IsTrue(results.Result.All(s => s.Fields[0].UpdatedValue != null));
+                Assert.IsTrue(results.Result.Where(s => s.ChangedDate != string.Empty).All(s => s.Fields.First().Value != null));
+                Assert.IsTrue(results.Result.Where(s => s.ChangedDate != string.Empty).All(s => s.Fields.First().Key != null));
             }
         }
 
@@ -56,7 +56,7 @@ namespace Dash.Tests
                 var connection = new TfsConnection(userName, password, client);
                 var repo = new WorkItemRepository(connection);
                 var results = repo.GetInProcAndClosedWorkItems(@"BPS.Scrum\Dev -SEP Project");
-                var workItemIds = results.Result.Results.Select(r => r.SourceId).ToArray();
+                var workItemIds = results.Result.WorkItems.Select(r => r.Id).ToArray();
 
                 var wi = repo.GetWorkItems(workItemIds);
                 Assert.IsNotNull(wi.Result.First().Id);
@@ -77,7 +77,7 @@ namespace Dash.Tests
                  var connection = new TfsConnection(userName, password, client);
                  var repo = new WorkItemRepository(connection);
                  var results = repo.GetPrdouctBacklogItemsAsOf(@"BPS.Scrum\Dev -SEP Project", DateTime.Now.AddDays(-10));
-                 var workItemIds = results.Result.Results.Select(r => r.SourceId).ToArray();
+                 var workItemIds = results.Result.WorkItems.Select(r => r.Id).ToArray();
 
                  var wi = repo.GetWorkItemsAsOf(DateTime.Now.AddDays(-10), workItemIds);
                  Assert.IsNotNull(wi.Result.First().Id);

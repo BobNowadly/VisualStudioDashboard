@@ -174,7 +174,7 @@ namespace Dash.Tests
                 new WorkItemUpdate
                 {
                     Id = 89,
-                    Fields = new List<WorkItemFieldValue>
+                    OldFields = new List<WorkItemFieldValue>
                     {
                         new WorkItemFieldValue
                         {
@@ -191,7 +191,7 @@ namespace Dash.Tests
                 new WorkItemUpdate
                 {
                     Id = 99,
-                    Fields = new List<WorkItemFieldValue>
+                    OldFields = new List<WorkItemFieldValue>
                     {
                         new WorkItemFieldValue
                         {
@@ -219,7 +219,7 @@ namespace Dash.Tests
             {
                 new WorkItemUpdate
                 {
-                    Fields = new List<WorkItemFieldValue>
+                    OldFields = new List<WorkItemFieldValue>
                     {
                         new WorkItemFieldValue
                         {
@@ -240,7 +240,7 @@ namespace Dash.Tests
                 },
                 new WorkItemUpdate
                 {
-                    Fields = new List<WorkItemFieldValue>
+                    OldFields = new List<WorkItemFieldValue>
                     {
                         new WorkItemFieldValue
                         {
@@ -271,10 +271,10 @@ namespace Dash.Tests
         {
             return new QueryResults
             {
-                Results = new[]
+                WorkItems = new[]
                 {
-                    new QueryResult {SourceId = 88},
-                    new QueryResult {SourceId = 89}
+                    new QueryResult {Id = 88},
+                    new QueryResult {Id = 89}
                 }
             };
         }
@@ -283,9 +283,9 @@ namespace Dash.Tests
         {
             return new QueryResults
             {
-                Results = new[]
+                WorkItems = new[]
                 {
-                    new QueryResult {SourceId = 88}
+                    new QueryResult {Id = 88}
                 }
             };
         }
@@ -296,7 +296,7 @@ namespace Dash.Tests
             {
                 new WorkItemUpdate
                 {
-                    Fields = new List<WorkItemFieldValue>
+                    OldFields = new List<WorkItemFieldValue>
                     {
                         new WorkItemFieldValue
                         {
@@ -312,7 +312,7 @@ namespace Dash.Tests
                 },
                 new WorkItemUpdate
                 {
-                    Fields = new List<WorkItemFieldValue>
+                    OldFields = new List<WorkItemFieldValue>
                     {
                         new WorkItemFieldValue
                         {
@@ -328,7 +328,7 @@ namespace Dash.Tests
                 },
                 new WorkItemUpdate
                 {
-                    Fields = new List<WorkItemFieldValue>
+                    OldFields = new List<WorkItemFieldValue>
                     {
                         new WorkItemFieldValue
                         {
@@ -344,7 +344,7 @@ namespace Dash.Tests
                 },
                 new WorkItemUpdate
                 {
-                    Fields = new List<WorkItemFieldValue>
+                    OldFields = new List<WorkItemFieldValue>
                     {
                         new WorkItemFieldValue
                         {
@@ -365,7 +365,7 @@ namespace Dash.Tests
                 },
                 new WorkItemUpdate
                 {
-                    Fields = new List<WorkItemFieldValue>
+                    OldFields = new List<WorkItemFieldValue>
                     {
                         new WorkItemFieldValue
                         {
@@ -393,7 +393,7 @@ namespace Dash.Tests
             {
                 new WorkItemUpdate
                 {
-                    Fields = new List<WorkItemFieldValue>
+                    OldFields = new List<WorkItemFieldValue>
                     {
                         new WorkItemFieldValue
                         {
@@ -409,7 +409,7 @@ namespace Dash.Tests
                 },
                 new WorkItemUpdate
                 {
-                    Fields = new List<WorkItemFieldValue>
+                    OldFields = new List<WorkItemFieldValue>
                     {
                         new WorkItemFieldValue
                         {
@@ -437,7 +437,7 @@ namespace Dash.Tests
             {
                 new WorkItemUpdate
                 {
-                    Fields = new List<WorkItemFieldValue>
+                    OldFields = new List<WorkItemFieldValue>
                     {
                         new WorkItemFieldValue
                         {
@@ -453,7 +453,7 @@ namespace Dash.Tests
                 },
                 new WorkItemUpdate
                 {
-                    Fields = new List<WorkItemFieldValue>
+                    OldFields = new List<WorkItemFieldValue>
                     {
                         new WorkItemFieldValue
                         {

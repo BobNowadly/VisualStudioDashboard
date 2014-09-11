@@ -7,39 +7,40 @@ namespace Dashboard.Data
     {
         public int Id { get; set; }
         public int Rev { get; set; }
-        public List<WorkItemFieldValue> Fields { get; set; }
+        public List<WorkItemFieldValue> OldFields { get; set; }
+        public Dictionary<string, WorkItemFieldValue> Fields { get; set; }
 
         public string Title
         {
-            get { return GetValueOfField("Title"); }
+            get { return GetValueOfField("System.Title"); }
         }
 
         public string Effort
         {
-            get { return GetValueOfField("Effort"); }
+            get { return GetValueOfField("Microsoft.VSTS.Scheduling.Effort"); }
         }
 
         public string State
         {
-            get { return GetValueOfField("State"); }
+            get { return GetValueOfField("System.State"); }
         }
 
         public string ChangedDate
         {
-            get { return GetValueOfField("Changed Date"); }
+            get { return GetValueOfField("System.ChangedDate"); }
         }
 
         public string ClosedDate
         {
-            get { return GetValueOfField("Closed Date"); }
+            get { return GetValueOfField("Microsoft.VSTS.Common.ClosedDate"); }
         }
 
         private string GetValueOfField(string propertyName)
         {
             if (Fields != null)
             {
-                WorkItemFieldValue field = Fields.FirstOrDefault(f => f.Field.Name == propertyName);
-                return field != null ? field.GetValue() : string.Empty;
+                var field = Fields[propertyName];
+                return field.NewValue;
             }
 
             return string.Empty;

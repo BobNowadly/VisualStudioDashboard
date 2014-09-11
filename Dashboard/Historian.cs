@@ -30,7 +30,7 @@ namespace Dashboard
             // to do move the area to the constructor 
             int[] workitemids =
                 repository.GetInProcAndClosedWorkItems(area)
-                    .Result.Results.Select(s => s.SourceId)
+                    .Result.WorkItems.Select(s => s.Id)
                     .ToArray();
 
             // Get Work Items 
@@ -115,7 +115,7 @@ namespace Dashboard
         private Metric GetWorkItemCountByDate(string area, DateTime date, string state = null, string workItemType = null)
         {
             var allWorkitemIds = repository.GetPrdouctBacklogItemsAsOf(area, date, state, workItemType).Result;
-            var workItems = repository.GetWorkItemsAsOf(date, allWorkitemIds.Results.Select(s => s.SourceId).ToArray()).Result;
+            var workItems = repository.GetWorkItemsAsOf(date, allWorkitemIds.WorkItems.Select(s => s.Id).ToArray()).Result;
 
             var sum = 0;
             if (workItems != null)
@@ -131,7 +131,7 @@ namespace Dashboard
         private Metric GetWorkItemSumByDate(string area, DateTime date, string state = null, string workItemType = null)
         {
             var allWorkitemIds = repository.GetPrdouctBacklogItemsAsOf(area, date, state, workItemType).Result;
-            var workItems = repository.GetWorkItemsAsOf(date, allWorkitemIds.Results.Select(s => s.SourceId).ToArray()).Result;
+            var workItems = repository.GetWorkItemsAsOf(date, allWorkitemIds.WorkItems.Select(s => s.Id).ToArray()).Result;
 
             var sum = 0;
             if (workItems != null)

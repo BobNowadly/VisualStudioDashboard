@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Dashboard
 {
@@ -29,10 +30,13 @@ namespace Dashboard
             return client.GetAsync(url);
         }
 
-        public Task<HttpResponseMessage> PostAsync(string url, params KeyValuePair<string, string>[] formData)
+        public Task<HttpResponseMessage> PostAsync(string url, KeyValuePair<string, string> formData)
         {
-            var content = new FormUrlEncodedContent(formData);
-            return client.PostAsync(url, content);
+            var content = string.Format("{{\"{0}\":\"{1}\"}}", formData.Key, formData.Value);
+
+            var json = JsonConvert.SerializeObject(new {query = formData.Value});
+
+            return client.PostAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
         }
     }
 }

@@ -27,15 +27,10 @@ namespace Dashboard.DataAccess
 
         public async Task<QueryResults> GetInProcAndClosedWorkItems(string area)
         {
-            string query = string.Format(@"Select [System.Id], [System.Title], [System.State]
-                        From WorkItems 
-                        Where [System.WorkItemType] = 'Product Backlog Item' 
-                        AND [State] <> 'Removed' AND [State] EVER 'Closed' or [State] EVER 'Committed'
-                        AND [Area Path] Under  '{0}'
-                        order by [Microsoft.VSTS.Common.Priority] asc, [System.CreatedDate] desc", area);
+            string query = string.Format(@"Select [System.Id], [System.Title], [System.State] From WorkItems Where [System.WorkItemType] = 'Product Backlog Item' AND [State] <> 'Removed' AND [State] EVER 'Closed' or [State] EVER 'Committed' AND [Area Path] Under  '{0}' order by [Microsoft.VSTS.Common.Priority] asc, [System.CreatedDate] desc", area);
 
-            using (Task<HttpResponseMessage> response = connection.PostAsync("queryresults?&api-version=1.0-preview",
-                new KeyValuePair<string, string>("wiql", query)))
+            using (Task<HttpResponseMessage> response = connection.PostAsync("BPS.Scrum/_apis/wit/wiql?&api-version=1.0-preview.2",
+                new KeyValuePair<string, string>("query", query)))
             {
                 var workItems =
                     JsonConvert.DeserializeObject<QueryResults>(await response.Result.Content.ReadAsStringAsync());
@@ -46,7 +41,7 @@ namespace Dashboard.DataAccess
 
         public async Task<IEnumerable<WorkItemUpdate>> GetWorkItemUpdates(int workItemId)
         {
-            string url = string.Format("workitems/{0}/updates?&api-version=1.0-preview", workItemId);
+            string url = string.Format("_apis/wit/workitems/{0}/updates?&api-version=1.0-preview.2", workItemId);
             using (Task<HttpResponseMessage> response = connection.GetAsync(url))
             {
                 var updates =
@@ -61,7 +56,7 @@ namespace Dashboard.DataAccess
         {
             string idString = string.Join(",", ids);
             string url =
-                string.Format("workitems?ids={0}&api-version=1.0-preview",
+                string.Format("_apis/wit/workitems?ids={0}&api-version=1.0-preview",
                     idString);
             using (Task<HttpResponseMessage> response = connection.GetAsync(url))
             {

@@ -4,6 +4,6 @@ namespace Dashboard
 {
     public class QueryResults
     {
-        public QueryResult[] Results { get; set; }
+        public QueryResult[] WorkItems { get; set; }
     }
 }
