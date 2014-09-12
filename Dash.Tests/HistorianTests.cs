@@ -23,95 +23,6 @@ namespace Dash.Tests
         }
 
         [TestMethod]
-        public void ShoudldGetCommittedAndClosedWorkItems()
-        {
-            QueryResults inProcWorkItems = GetTestQueryResult();
-            mockRepo.Setup(s => s.GetInProcAndClosedWorkItems(It.IsAny<string>())).ReturnsAsync(inProcWorkItems);
-            IEnumerable<WorkItemUpdate> workitemUpdates = GetTestWorkItemUpdates();
-            mockRepo.Setup(s => s.GetWorkItemUpdates(It.IsAny<int>())).ReturnsAsync(workitemUpdates);
-            IEnumerable<WorkItemUpdate> workitems = GetTestWorkItems();
-            mockRepo.Setup(s => s.GetWorkItems(It.IsAny<int[]>())).ReturnsAsync(workitems);
-
-            var history = new Historian(mockRepo.Object);
-
-            List<WorkItem> wi = history.GetCommittedAndClosedWorkItems(@"BPS.Scrum\Dev -SEP Project");
-
-            Assert.AreEqual(89, wi.First().Id);
-            Assert.AreEqual("The title", wi.First().Title);
-            Assert.AreEqual(8, wi.First().Effort);
-            Assert.IsNotNull(wi.First().DateCommittedTime);
-            Assert.IsNotNull(wi.First().DateClosed);
-        }
-
-        [TestMethod]
-        public void ShouldHandleEarlyCloseCase()
-        {
-            QueryResults inProcWorkItems = GetTestQueryResult();
-            mockRepo.Setup(s => s.GetInProcAndClosedWorkItems(It.IsAny<string>())).ReturnsAsync(inProcWorkItems);
-            IEnumerable<WorkItemUpdate> workitemUpdates = GetTestWorkItemUpdateWithEarlyClose();
-            mockRepo.Setup(s => s.GetWorkItemUpdates(It.IsAny<int>())).ReturnsAsync(workitemUpdates);
-            IEnumerable<WorkItemUpdate> workitems = GetTestWorkItems();
-            mockRepo.Setup(s => s.GetWorkItems(It.IsAny<int[]>())).ReturnsAsync(workitems);
-
-            var history = new Historian(mockRepo.Object);
-
-            List<WorkItem> wi = history.GetCommittedAndClosedWorkItems(@"BPS.Scrum\Dev -SEP Project");
-
-            Assert.AreEqual("7/8/2014", wi.First().DateClosed.Value.ToShortDateString());
-        }
-
-        [TestMethod]
-        public void ShouldHandleAccidentalCloseCase()
-        {
-            QueryResults inProcWorkItems = GetTestQueryResult();
-            mockRepo.Setup(s => s.GetInProcAndClosedWorkItems(It.IsAny<string>())).ReturnsAsync(inProcWorkItems);
-            IEnumerable<WorkItemUpdate> workitemUpdates = GetTestWorkItemUpdateWithAccidentalClose();
-            mockRepo.Setup(s => s.GetWorkItemUpdates(It.IsAny<int>())).ReturnsAsync(workitemUpdates);
-            IEnumerable<WorkItemUpdate> workitems = GetTestWorkItems();
-            mockRepo.Setup(s => s.GetWorkItems(It.IsAny<int[]>())).ReturnsAsync(workitems);
-
-            var history = new Historian(mockRepo.Object);
-
-            List<WorkItem> wi = history.GetCommittedAndClosedWorkItems(@"BPS.Scrum\Dev -SEP Project");
-
-            Assert.IsFalse(wi.First().DateClosed.HasValue);
-        }
-
-        [TestMethod]
-        public void ShouldHandleEarlyCommittedCase()
-        {
-            QueryResults inProcWorkItems = GetTestQueryResult();
-            mockRepo.Setup(s => s.GetInProcAndClosedWorkItems(It.IsAny<string>())).ReturnsAsync(inProcWorkItems);
-            IEnumerable<WorkItemUpdate> workitemUpdates = GetTestWorkItemUpdateWithEarlyClose();
-            mockRepo.Setup(s => s.GetWorkItemUpdates(It.IsAny<int>())).ReturnsAsync(workitemUpdates);
-            IEnumerable<WorkItemUpdate> workitems = GetTestWorkItems();
-            mockRepo.Setup(s => s.GetWorkItems(It.IsAny<int[]>())).ReturnsAsync(workitems);
-
-            var history = new Historian(mockRepo.Object);
-
-            List<WorkItem> wi = history.GetCommittedAndClosedWorkItems(@"BPS.Scrum\Dev -SEP Project");
-
-            Assert.AreEqual("7/6/2014", wi.First().DateCommittedTime.Value.ToShortDateString());
-        }
-
-        [TestMethod]
-        public void ShouldHandleAccidentalCommittedCase()
-        {
-            QueryResults inProcWorkItems = GetTestQueryResult();
-            mockRepo.Setup(s => s.GetInProcAndClosedWorkItems(It.IsAny<string>())).ReturnsAsync(inProcWorkItems);
-            IEnumerable<WorkItemUpdate> workitemUpdates = GetTestWorkItemUpdateWithAccidentalCommit();
-            mockRepo.Setup(s => s.GetWorkItemUpdates(It.IsAny<int>())).ReturnsAsync(workitemUpdates);
-            IEnumerable<WorkItemUpdate> workitems = GetTestWorkItems();
-            mockRepo.Setup(s => s.GetWorkItems(It.IsAny<int[]>())).ReturnsAsync(workitems);
-
-            var history = new Historian(mockRepo.Object);
-
-            List<WorkItem> wi = history.GetCommittedAndClosedWorkItems(@"BPS.Scrum\Dev -SEP Project");
-
-            Assert.IsFalse(wi.First().DateCommittedTime.HasValue);
-        }
-
-        [TestMethod]
         public void ShoudldGetCommittedAndClosedWorkItemsAsOfACertianDate()
         {
             QueryResults allResults = GetTestQueryResult();
@@ -119,7 +30,7 @@ namespace Dash.Tests
             QueryResults closedResults = GetDoneQueryResult();
             mockRepo.Setup(s => s.GetPrdouctBacklogItemsAsOf(It.IsAny<string>(), It.IsAny<DateTime>(), It.Is<string>(a => a == "Done"), It.Is<string>(a => a == null))).ReturnsAsync(closedResults);
            
-            IEnumerable<WorkItemUpdate> workitems = GetTestWorkItems();
+            var workitems = GetTestWorkItems();
             mockRepo.Setup(s => s.GetWorkItemsAsOf(It.IsAny<DateTime>(), It.Is<int[]>(a => a.Length == 2))).ReturnsAsync(workitems);
             mockRepo.Setup(s => s.GetWorkItemsAsOf(It.IsAny<DateTime>(), It.Is<int[]>(a => a.Length == 1))).ReturnsAsync(workitems.Where(s => s.State == "Done"));
 
@@ -127,8 +38,8 @@ namespace Dash.Tests
 
             var burnUpData = history.GetBurnUpDataSince(new DateTime(2014, 7, 30), "Test area");
 
-            Assert.AreEqual(22, burnUpData.First(s => s.Title == "Requested").Data.Count);
-            Assert.AreEqual(22, burnUpData.First(s => s.Title == "Completed").Data.Count);          
+            Assert.AreEqual(11, burnUpData.First(s => s.Title == "Requested").Data.First().Value);
+            Assert.AreEqual(3, burnUpData.First(s => s.Title == "Completed").Data.First().Value);          
         }
 
         [TestMethod, TestCategory("IntegrationTest")]
@@ -144,7 +55,7 @@ namespace Dash.Tests
 
                 var burnup = history.GetBurnUpDataSince(new DateTime(2014, 7, 30, 23, 59, 59), @"BPS.Scrum\Dev -SEP Project");
 
-                Assert.AreEqual(221, (int)burnup.First(s => s.Title == "Requested").Data.First().Value);
+                Assert.AreEqual(213, (int)burnup.First(s => s.Title == "Requested").Data.First().Value);
                 Assert.AreEqual(38, (int)burnup.First(s => s.Title == "Completed").Data.First().Value);            
             }
         }
@@ -167,101 +78,29 @@ namespace Dash.Tests
             }
         }
 
-        private IEnumerable<WorkItemUpdate> GetTestWorkItems()
+        private IEnumerable<WorkItemUpdateBase> GetTestWorkItems()
         {
-            return new List<WorkItemUpdate>
+            return new List<WorkItemUpdateBase>
             {
-                new WorkItemUpdate
+                new WorkItemJson
                 {
                     Id = 89,
-                    OldFields = new List<WorkItemFieldValue>
+                    Fields = new Dictionary<string, string>()
                     {
-                        new WorkItemFieldValue
-                        {
-                            Value = "The title",
-                            Field = new WorkItemField {Name = "Title"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = "8",
-                            Field = new WorkItemField {Name = "Effort"}
-                        }
+                        {"System.Title", "Title"},
+                        {"Microsoft.VSTS.Scheduling.Effort", "8"}
+
                     }
                 },
-                new WorkItemUpdate
+                new WorkItemJson
                 {
                     Id = 99,
-                    OldFields = new List<WorkItemFieldValue>
+                    Fields = new Dictionary<string, string>()
                     {
-                        new WorkItemFieldValue
-                        {
-                            Value = "The title",
-                            Field = new WorkItemField {Name = "Title"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = "Done",
-                            Field = new WorkItemField {Name = "State"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = "3",
-                            Field = new WorkItemField {Name = "Effort"}
-                        }
-                    }
-                }
-            };
-        }
+                        {"System.Title", "The title"},
+                        {"System.State", "Done"},
+                        {"Microsoft.VSTS.Scheduling.Effort", "3"}
 
-        private IEnumerable<WorkItemUpdate> GetTestWorkItemUpdates()
-        {
-            return new List<WorkItemUpdate>
-            {
-                new WorkItemUpdate
-                {
-                    OldFields = new List<WorkItemFieldValue>
-                    {
-                        new WorkItemFieldValue
-                        {
-                            Value = new DateTime(2014, 7, 4).ToShortDateString(),
-                            Field = new WorkItemField {Name = "Changed Date"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = "Committed",
-                            Field = new WorkItemField {Name = "State"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = "8",
-                            Field = new WorkItemField {Name = "Effort"}
-                        }
-                    }
-                },
-                new WorkItemUpdate
-                {
-                    OldFields = new List<WorkItemFieldValue>
-                    {
-                        new WorkItemFieldValue
-                        {
-                            Value = new DateTime(2014, 7, 8).ToShortDateString(),
-                            Field = new WorkItemField {Name = "Closed Date"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = "Done",
-                            Field = new WorkItemField {Name = "State"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = new DateTime(2014, 7, 8).ToShortDateString(),
-                            Field = new WorkItemField {Name = "Changed Date"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = "3",
-                            Field = new WorkItemField {Name = "Effort"}
-                        }
                     }
                 }
             };
@@ -286,186 +125,6 @@ namespace Dash.Tests
                 WorkItems = new[]
                 {
                     new QueryResult {Id = 88}
-                }
-            };
-        }
-
-        private IEnumerable<WorkItemUpdate> GetTestWorkItemUpdateWithEarlyClose()
-        {
-            return new List<WorkItemUpdate>
-            {
-                new WorkItemUpdate
-                {
-                    OldFields = new List<WorkItemFieldValue>
-                    {
-                        new WorkItemFieldValue
-                        {
-                            Value = new DateTime(2014, 7, 4).ToShortDateString(),
-                            Field = new WorkItemField {Name = "Changed Date"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = "Committed",
-                            Field = new WorkItemField {Name = "State"}
-                        }
-                    }
-                },
-                new WorkItemUpdate
-                {
-                    OldFields = new List<WorkItemFieldValue>
-                    {
-                        new WorkItemFieldValue
-                        {
-                            Value = new DateTime(2014, 7, 5).ToShortDateString(),
-                            Field = new WorkItemField {Name = "Changed Date"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = "New",
-                            Field = new WorkItemField {Name = "State"}
-                        }
-                    }
-                },
-                new WorkItemUpdate
-                {
-                    OldFields = new List<WorkItemFieldValue>
-                    {
-                        new WorkItemFieldValue
-                        {
-                            Value = new DateTime(2014, 7, 6).ToShortDateString(),
-                            Field = new WorkItemField {Name = "Changed Date"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = "Committed",
-                            Field = new WorkItemField {Name = "State"}
-                        }
-                    }
-                },
-                new WorkItemUpdate
-                {
-                    OldFields = new List<WorkItemFieldValue>
-                    {
-                        new WorkItemFieldValue
-                        {
-                            Value = new DateTime(2014, 7, 8).ToShortDateString(),
-                            Field = new WorkItemField {Name = "Closed Date"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = "Done",
-                            Field = new WorkItemField {Name = "State"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = new DateTime(2014, 7, 8).ToShortDateString(),
-                            Field = new WorkItemField {Name = "Changed Date"}
-                        }
-                    }
-                },
-                new WorkItemUpdate
-                {
-                    OldFields = new List<WorkItemFieldValue>
-                    {
-                        new WorkItemFieldValue
-                        {
-                            Value = new DateTime(2014, 7, 3).ToShortDateString(),
-                            Field = new WorkItemField {Name = "Closed Date"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = "Done",
-                            Field = new WorkItemField {Name = "State"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = new DateTime(2014, 7, 3).ToShortDateString(),
-                            Field = new WorkItemField {Name = "Changed Date"}
-                        }
-                    }
-                }
-            };
-        }
-
-        private IEnumerable<WorkItemUpdate> GetTestWorkItemUpdateWithAccidentalClose()
-        {
-            return new List<WorkItemUpdate>
-            {
-                new WorkItemUpdate
-                {
-                    OldFields = new List<WorkItemFieldValue>
-                    {
-                        new WorkItemFieldValue
-                        {
-                            Value = new DateTime(2014, 7, 4).ToShortDateString(),
-                            Field = new WorkItemField {Name = "Changed Date"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = "Committed",
-                            Field = new WorkItemField {Name = "State"}
-                        }
-                    }
-                },
-                new WorkItemUpdate
-                {
-                    OldFields = new List<WorkItemFieldValue>
-                    {
-                        new WorkItemFieldValue
-                        {
-                            Value = new DateTime(2014, 7, 3).ToShortDateString(),
-                            Field = new WorkItemField {Name = "Closed Date"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = "Done",
-                            Field = new WorkItemField {Name = "State"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = new DateTime(2014, 7, 3).ToShortDateString(),
-                            Field = new WorkItemField {Name = "Changed Date"}
-                        }
-                    }
-                }
-            };
-        }
-
-        private IEnumerable<WorkItemUpdate> GetTestWorkItemUpdateWithAccidentalCommit()
-        {
-            return new List<WorkItemUpdate>
-            {
-                new WorkItemUpdate
-                {
-                    OldFields = new List<WorkItemFieldValue>
-                    {
-                        new WorkItemFieldValue
-                        {
-                            Value = new DateTime(2014, 7, 4).ToShortDateString(),
-                            Field = new WorkItemField {Name = "Changed Date"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = "Committed",
-                            Field = new WorkItemField {Name = "State"}
-                        }
-                    }
-                },
-                new WorkItemUpdate
-                {
-                    OldFields = new List<WorkItemFieldValue>
-                    {
-                        new WorkItemFieldValue
-                        {
-                            Value = "New",
-                            Field = new WorkItemField {Name = "State"}
-                        },
-                        new WorkItemFieldValue
-                        {
-                            Value = new DateTime(2014, 7, 5).ToShortDateString(),
-                            Field = new WorkItemField {Name = "Changed Date"}
-                        }
-                    }
                 }
             };
         }

@@ -7,6 +7,11 @@ namespace Dashboard.Data
         public List<WorkItemUpdate> Value { get; set; }
     }
 
+    public class WorkItemsJson
+    {
+        public List<WorkItemJson> Value { get; set; }
+    }
+
     //public class WorkItems
     //{
     //    public List<WorkItem> Value { get; set; }

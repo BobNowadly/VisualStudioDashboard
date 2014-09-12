@@ -10,9 +10,9 @@ namespace Dashboard.DataAccess
     public interface IWorkItemRepository
     {
         Task<QueryResults> GetInProcAndClosedWorkItems(string area);
-        Task<IEnumerable<WorkItemUpdate>> GetWorkItemUpdates(int workItemId);
-        Task<IEnumerable<WorkItemUpdate>> GetWorkItems(params int[] ids);
-        Task<IEnumerable<WorkItemUpdate>> GetWorkItemsAsOf(DateTime asOf, params int[] ids);
+        Task<IEnumerable<WorkItemUpdateBase>> GetWorkItemUpdates(int workItemId);
+        Task<IEnumerable<WorkItemUpdateBase>> GetWorkItems(params int[] ids);
+        Task<IEnumerable<WorkItemUpdateBase>> GetWorkItemsAsOf(DateTime asOf, params int[] ids);
         Task<QueryResults> GetPrdouctBacklogItemsAsOf(string area, DateTime asOfDate, string state = null, string workitemType = null);
     }
 
@@ -39,7 +39,7 @@ namespace Dashboard.DataAccess
             }
         }
 
-        public async Task<IEnumerable<WorkItemUpdate>> GetWorkItemUpdates(int workItemId)
+        public async Task<IEnumerable<WorkItemUpdateBase>> GetWorkItemUpdates(int workItemId)
         {
             string url = string.Format("_apis/wit/workitems/{0}/updates?&api-version=1.0-preview.2", workItemId);
             using (Task<HttpResponseMessage> response = connection.GetAsync(url))
@@ -52,7 +52,7 @@ namespace Dashboard.DataAccess
             }
         }
 
-        public async Task<IEnumerable<WorkItemUpdate>> GetWorkItems(params int[] ids)
+        public async Task<IEnumerable<WorkItemUpdateBase>> GetWorkItems(params int[] ids)
         {
             string idString = string.Join(",", ids);
             string url =
@@ -61,23 +61,25 @@ namespace Dashboard.DataAccess
             using (Task<HttpResponseMessage> response = connection.GetAsync(url))
             {
                 var workItems =
-                    JsonConvert.DeserializeObject<WorkItemUpdates>(
+                    JsonConvert.DeserializeObject<WorkItemsJson>(
                         await response.Result.Content.ReadAsStringAsync());
 
                 return workItems.Value;
             }
         }
 
-        public async Task<IEnumerable<WorkItemUpdate>> GetWorkItemsAsOf(DateTime asOf, params int[] ids)
+        public async Task<IEnumerable<WorkItemUpdateBase>> GetWorkItemsAsOf(DateTime asOf, params int[] ids)
         {
             string idString = string.Join(",", ids);
+            const string fields = "system.title,Microsoft.VSTS.Scheduling.Effort,System.State,System.ChangedDate,Microsoft.VSTS.Common.ClosedDate";
+
             string url =
-                string.Format("workitems?ids={0}&asof={1}&api-version=1.0-preview",
-                    idString, asOf.ToString("MM-DD-YYYY"));
+                string.Format("_apis/wit/workitems?ids={0}&fields={2}&asOf={1}&api-version=1.0-preview",
+                    idString, asOf.ToString("yyyy-MM-dd"), fields);
             using (Task<HttpResponseMessage> response = connection.GetAsync(url))
             {
                 var workItems =
-                    JsonConvert.DeserializeObject<WorkItemUpdates>(
+                    JsonConvert.DeserializeObject<WorkItemsJson>(
                         await response.Result.Content.ReadAsStringAsync());
 
                 return workItems.Value;
@@ -98,7 +100,7 @@ namespace Dashboard.DataAccess
                         asof '{1}'
                         order by [Microsoft.VSTS.Common.Priority] asc, [System.CreatedDate] desc", area, asOfDate, wit);
 
-            using (Task<HttpResponseMessage> response = connection.PostAsync("queryresults?&api-version=1.0-preview",
+            using (Task<HttpResponseMessage> response = connection.PostAsync("BPS.Scrum/_apis/wit/wiql?&api-version=1.0-preview.2",
                 new KeyValuePair<string, string>("wiql", query)))
             {
                 var workItems =

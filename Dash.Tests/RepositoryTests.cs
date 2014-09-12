@@ -43,8 +43,7 @@ namespace Dash.Tests
                 var repo = new WorkItemRepository(connection);
 
                 var results = repo.GetWorkItemUpdates(86);
-                Assert.IsTrue(results.Result.Where(s => s.ChangedDate != string.Empty).All(s => s.Fields.First().Value != null));
-                Assert.IsTrue(results.Result.Where(s => s.ChangedDate != string.Empty).All(s => s.Fields.First().Key != null));
+                Assert.IsTrue(results.Result.Where(s => s.ChangedDate != string.Empty).All(s => s.Id != 0));
             }
         }
 
@@ -76,8 +75,10 @@ namespace Dash.Tests
              {
                  var connection = new TfsConnection(userName, password, client);
                  var repo = new WorkItemRepository(connection);
+
                  var results = repo.GetPrdouctBacklogItemsAsOf(@"BPS.Scrum\Dev -SEP Project", DateTime.Now.AddDays(-10));
                  var workItemIds = results.Result.WorkItems.Select(r => r.Id).ToArray();
+
 
                  var wi = repo.GetWorkItemsAsOf(DateTime.Now.AddDays(-10), workItemIds);
                  Assert.IsNotNull(wi.Result.First().Id);

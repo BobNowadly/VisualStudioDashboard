@@ -8,9 +8,7 @@ namespace Dashboard
 {
     public interface IHistorian
     {
-        List<WorkItem> GetCommittedAndClosedWorkItems(string area);
         List<ChartSeries> GetBurnUpDataSince(DateTime since, string area);
-        List<WorkItemEffortAverage> GetEffortCycleTimeAverage(string area);
         List<ChartSeries> GetBurnDown(DateTime startDate, DateTime endDate, string area);
         List<ChartSeries> GetBugsSince(DateTime since, string area);
     }
@@ -24,55 +22,7 @@ namespace Dashboard
             this.repository = repository;
         }
 
-        public List<WorkItem> GetCommittedAndClosedWorkItems(string area)
-        {
-            // Get Workitem ids
-            // to do move the area to the constructor 
-            int[] workitemids =
-                repository.GetInProcAndClosedWorkItems(area)
-                    .Result.WorkItems.Select(s => s.Id)
-                    .ToArray();
-
-            // Get Work Items 
-            IEnumerable<WorkItemUpdate> workitems = repository.GetWorkItems(workitemids).Result;
-
-            // Get Get Changes Find Revision for Committed 
-            var wi = new List<WorkItem>();
-            foreach (WorkItemUpdate workitem in workitems)
-            {
-                IOrderedEnumerable<WorkItemUpdate> changes =
-                    repository.GetWorkItemUpdates(workitem.Id)
-                        .Result.OrderByDescending(a => DateTime.Parse(a.ChangedDate));
-                WorkItemUpdate latestPreClosedState =
-                    changes.FirstOrDefault(s => s.State != "Done" && !string.IsNullOrEmpty(s.State));
-                    //Give me the state that happened before closed 
-
-                DateTime? dateCommitted = latestPreClosedState != null &&
-                                          !string.IsNullOrEmpty(latestPreClosedState.ChangedDate) &&
-                                          latestPreClosedState.State == "Committed"
-                    ? DateTime.Parse(latestPreClosedState.ChangedDate)
-                    : (DateTime?) null;
-                WorkItemUpdate latestStateChange = changes.FirstOrDefault(s => !string.IsNullOrEmpty(s.State));
-                    // this should be the last state change
-                DateTime? closedDAte = latestStateChange != null && !string.IsNullOrEmpty(latestStateChange.ClosedDate)
-                    ? DateTime.Parse(latestStateChange.ClosedDate)
-                    : (DateTime?) null;
-
-                var effort = 0;
-                var useEffort = int.TryParse(workitem.Effort, out effort);
-                wi.Add(new WorkItem
-                {
-                    DateCommittedTime = dateCommitted,
-                    DateClosed = closedDAte,
-                    Id = workitem.Id,
-                    Effort = useEffort ? effort : (int?)null,
-                    Title = workitem.Title
-                });
-            }
-
-            return wi;
-        }
-
+      
         public List<ChartSeries> GetBurnUpDataSince(DateTime since, string area)
         {
             var dateWeCareAbout = CreateDatesWeCareAbout(since).ToList();
@@ -114,31 +64,37 @@ namespace Dashboard
         // TODO: REfactor
         private Metric GetWorkItemCountByDate(string area, DateTime date, string state = null, string workItemType = null)
         {
+            var count = 0;
             var allWorkitemIds = repository.GetPrdouctBacklogItemsAsOf(area, date, state, workItemType).Result;
-            var workItems = repository.GetWorkItemsAsOf(date, allWorkitemIds.WorkItems.Select(s => s.Id).ToArray()).Result;
-
-            var sum = 0;
-            if (workItems != null)
+            if (allWorkitemIds.WorkItems.Any())
             {
-                sum = workItems.Count();
+                var workItems =
+                    repository.GetWorkItemsAsOf(date, allWorkitemIds.WorkItems.Select(s => s.Id).ToArray()).Result;
+
+                
+                if (workItems != null)
+                {
+                    count = workItems.Count();
+                }
             }
 
-            var count = new Metric { Value = sum, Date = date };
-
-            return count;
+            return new Metric { Value = count, Date = date };
         }
 
         private Metric GetWorkItemSumByDate(string area, DateTime date, string state = null, string workItemType = null)
         {
-            var allWorkitemIds = repository.GetPrdouctBacklogItemsAsOf(area, date, state, workItemType).Result;
-            var workItems = repository.GetWorkItemsAsOf(date, allWorkitemIds.WorkItems.Select(s => s.Id).ToArray()).Result;
-
             var sum = 0;
-            if (workItems != null)
+            var allWorkitemIds = repository.GetPrdouctBacklogItemsAsOf(area, date, state, workItemType).Result;
+            if (allWorkitemIds.WorkItems.Any())
             {
-                sum = workItems.Sum(s => string.IsNullOrEmpty(s.Effort) ? 0 : int.Parse(s.Effort));
-            }
+                var workItems =
+                    repository.GetWorkItemsAsOf(date, allWorkitemIds.WorkItems.Select(s => s.Id).ToArray()).Result;
 
+                if (workItems != null)
+                {
+                    sum = workItems.Sum(s => string.IsNullOrEmpty(s.Effort) ? 0 : int.Parse(s.Effort));
+                }
+            }
             var summedEffort = new Metric { Value = sum, Date = date };
 
             return summedEffort;
@@ -163,26 +119,6 @@ namespace Dashboard
             }
 
             return list;
-        }
-
-        public List<WorkItemEffortAverage> GetEffortCycleTimeAverage(string area)
-        {
-            var workItems = GetCommittedAndClosedWorkItems(area);
-
-            var data = (from w in workItems
-                where w.Effort.HasValue && w.DateCommittedTime.HasValue && w.DateClosed.HasValue
-                group w by new {w.Effort}
-                into g
-                select
-                    new WorkItemEffortAverage
-                    {
-                        Effort = g.Key.Effort.Value,
-                        AverageDays =
-                            g.Average(s => CountWorkDays(s.DateCommittedTime.Value, s.DateClosed.Value, new List<DateTime>()))
-                    }
-                );
-
-            return data.OrderBy(s => s.Effort).ToList();
         }
 
         public List<ChartSeries> GetBurnDown(DateTime startDate, DateTime endDate, string area)

@@ -3,12 +3,10 @@ using System.Linq;
 
 namespace Dashboard.Data
 {
-    public class WorkItemUpdate
+    public abstract class WorkItemUpdateBase
     {
         public int Id { get; set; }
         public int Rev { get; set; }
-        public List<WorkItemFieldValue> OldFields { get; set; }
-        public Dictionary<string, WorkItemFieldValue> Fields { get; set; }
 
         public string Title
         {
@@ -35,12 +33,35 @@ namespace Dashboard.Data
             get { return GetValueOfField("Microsoft.VSTS.Common.ClosedDate"); }
         }
 
-        private string GetValueOfField(string propertyName)
+        protected abstract string GetValueOfField(string propertyName);
+    }
+
+    public class WorkItemUpdate : WorkItemUpdateBase
+    {
+        public List<WorkItemFieldValue> OldFields { get; set; }
+        public Dictionary<string, WorkItemFieldValue> Fields { get; set; }
+
+        protected override string GetValueOfField(string propertyName)
         {
-            if (Fields != null)
+            if (Fields != null && Fields.ContainsKey(propertyName))
             {
                 var field = Fields[propertyName];
                 return field.NewValue;
+            }
+
+            return string.Empty;
+        }
+    }
+
+    public class WorkItemJson : WorkItemUpdateBase
+    {
+        public Dictionary<string, string> Fields { get; set; }
+
+        protected override string GetValueOfField(string propertyName)
+        {
+            if (Fields != null && Fields.ContainsKey(propertyName))
+            {
+                return Fields[propertyName];
             }
 
             return string.Empty;

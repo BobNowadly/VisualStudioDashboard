@@ -23,13 +23,6 @@ namespace Dashboard.Console
                     new WorkItemRepository(new TfsConnection(ConfigurationManager.AppSettings["username"],
                         ConfigurationManager.AppSettings["password"], client)));
 
-                List<WorkItem> workItms = history.GetCommittedAndClosedWorkItems(@"BPS.Scrum\Dev -SEP Project");
-                using (var writer = new StreamWriter(@".\output" + DateTime.Now.ToString("yyyymmmmdd") + ".xls"))
-                {
-                    var csvWriter = new CsvWriter(writer, new CsvConfiguration { Delimiter = "\t" });
-
-                    csvWriter.WriteRecords(workItms);
-                }
 
                 var burnup = history.GetBurnUpDataSince(new DateTime(2014, 7, 7, 23, 59, 59), @"BPS.Scrum\Dev -SEP Project");
                 using (var writer = new StreamWriter(@".\completed" + DateTime.Now.ToString("yyyymmmmdd") + ".xls"))
