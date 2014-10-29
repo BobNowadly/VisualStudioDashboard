@@ -92,7 +92,11 @@ namespace Dashboard
 
                 if (workItems != null)
                 {
-                    sum = workItems.Sum(s => string.IsNullOrEmpty(s.Effort) ? 0 : int.Parse(s.Effort));
+                    sum = workItems.Sum(s =>
+                    {
+                        int effort;
+                        return int.TryParse(s.Effort, out effort) ? effort : 0;
+                    });
                 }
             }
             var summedEffort = new Metric { Value = sum, Date = date };
