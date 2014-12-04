@@ -31,7 +31,7 @@ namespace WebApplication.Controllers
         public virtual JsonResult GetData()
         {
             var burnupData = historian.GetBurnDown(new DateTime(2014, 7, 9, 23, 59, 59),
-                new DateTime(2014, 11, 10, 23, 59, 59), @"BPS.Scrum\Dev -SEP Project");
+                new DateTime(2014, 11, 17, 23, 59, 59), @"BPS.Scrum\Dev -SEP Project");
 
             var series =
                 burnupData.Select(d => CreateViewModel(d.Data, d.Title, colors[d.Title], d.Title == "Remaining"));
